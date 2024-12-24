@@ -66,8 +66,8 @@ def read_particles(filename):
     return particles
 def channels(channel,threshold):
     
-    particles = read_particles('particles_unfl.txt')
-    charmonmium = read_particles('charmonium.txt')
+    particles = read_particles('Particles/particles_unfl.txt')
+    charmonmium = read_particles('Particles/charmonium.txt')
     names = []
     masses = []
     Channel_charm = channel['Charm']
@@ -131,9 +131,9 @@ def channels(channel,threshold):
     return sorted_dic,sorted_dic2
 def all_channels():
     
-    particles = read_particles('particles_unfl.txt')
-    charmonmium = read_particles('charmonium.txt')
-    Ds = read_particles('Ds.txt')
+    particles = read_particles('Particles/particles_unfl.txt')
+    charmonmium = read_particles('Particles/charmonium.txt')
+    Ds = read_particles('Particles/Ds.txt')
     names = []
     masses = []
     Channel_charm = 0
@@ -198,9 +198,9 @@ def all_channels():
     sorted_dic2 = dict(sorted(dic2.items(), key=lambda item: item[1]))
     return sorted_dic,sorted_dic2
 def particle_dict():
-    particles = read_particles('particles_unfl.txt')
-    charmonmium = read_particles('charmonium.txt')
-    Ds = read_particles('Ds.txt')
+    particles = read_particles('Particles/particles_unfl.txt')
+    charmonmium = read_particles('Particles/charmonium.txt')
+    Ds = read_particles('Particles/Ds.txt')
     all_particles = charmonmium + particles + Ds
     particle_dict = {}
     for p in all_particles:
@@ -243,7 +243,7 @@ def format_1(J,name,projection):
         texts.append(text)
     return texts
 def all_possible_channels():
-    all_particles = read_particles('particles_unfl.txt') + read_particles('charmonium.txt') + read_particles('Ds.txt')
+    all_particles = read_particles('Particles/particles_unfl.txt') + read_particles('Particles/charmonium.txt') + read_particles('Particles/Ds.txt')
     channels = {}
     for p1 in all_particles:
         for p2 in all_particles:
@@ -343,7 +343,7 @@ def Ds(channel,threshold):
     Channel_isospin = channel['Isospin']
     Channel_charm_isospin = channel['Charm_Isospin']
     Channel_C_parity = channel['C_parity']
-    all_particles =   read_particles('Ds.txt')
+    all_particles =   read_particles('Particles/Ds.txt')
     for p1 in all_particles:
         for p2 in all_particles:
             if two_particles_inchannel(p1,p2,Channel_charm,Channel_strange,Channel_isospin,Channel_charm_isospin,Channel_C_parity):
@@ -475,7 +475,7 @@ def possible_irreps_rest(p_1,p_2,channel,Jmax,threshold):
     return possible_irreps
 
 def all_particles_table():
-    all_particles = read_particles('particles_unfl.txt') + read_particles('charmonium.txt') + read_particles('Ds.txt')
+    all_particles = read_particles('Particles/particles_unfl.txt') + read_particles('Particles/charmonium.txt') + read_particles('Particles/Ds.txt')
     print( ' \\begin{table}[H]\\begin{tabularx}{\\textwidth}{YYY}  \\toprule Particle  & $J^{P(C)}$& $a_t m$\\\\ \midrule')
     for p in all_particles:
         symbol = '+' if p.Parity == 1 else '-'

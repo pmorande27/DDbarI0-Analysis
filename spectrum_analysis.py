@@ -673,7 +673,7 @@ def plot_sigma_E_levels(particle1,Ls,Ps,irrep_name):
                         sigma_E += [np.loadtxt(path)[l]]
                         ranking += [l]
             #print(sigma_E)
-            all_particles = p.read_particles('particles_unfl.txt')+p.read_particles('charmonium.txt')+p.read_particles('Ds.txt')
+            all_particles = p.read_particles('Particles/particles_unfl.txt')+p.read_particles('Particles/charmonium.txt')+p.read_particles('Particles/Ds.txt')
             for particle in all_particles:
                 if particle.name == particle1:
                     particle_1 = particle

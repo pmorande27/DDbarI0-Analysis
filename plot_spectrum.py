@@ -7,7 +7,7 @@ def plot_spectrum(irrep_file_names):
     colors = [ 'grey','r', 'g', 'b','yellow','orange']
     dic_colors = {0:'grey',1:'r',2:'g',3:'b',4:'tab:olive',10:'orange'}
     dic_alpha = {-1:1,1:0.5}
-    dic_irreps = {"A1mP.txt":"$A1^{-+}$","A1pP.txt":"$A1^{++}$","T1mP.txt":"$T1^{-+}$","EpP.txt":"$E^{++}$","T2pP.txt":"$T2^{++}$","T1pP.txt":"$T1^{++}$"}
+    dic_irreps = {"GroupTheory/A1mP.txt":"$A1^{-+}$","GroupTheory/A1pP.txt":"$A1^{++}$","GroupTheory/T1mP.txt":"$T1^{-+}$","GroupTheory/EpP.txt":"$E^{++}$","GroupTheory/T2pP.txt":"$T2^{++}$","GroupTheory/T1pP.txt":"$T1^{++}$"}
     omega_baryon_mass = 0.353
     axis = plt.gca()
     axis.set_ylim(2,3)
@@ -33,5 +33,5 @@ def plot_spectrum(irrep_file_names):
     plt.xlabel("$\Lambda^{PC}$")
     plt.title("$c\\bar c$ spectrum: $16^3\\times 128$,n128,ml0743")
     plt.show()
-plot_spectrum(["A1pP.txt","EpP.txt","T2pP.txt","T1pP.txt"])
+plot_spectrum(["GroupTheory/A1pP.txt","GroupTheory/EpP.txt","GroupTheory/T2pP.txt","GroupTheory/T1pP.txt"])
         

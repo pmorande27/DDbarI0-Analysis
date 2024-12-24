@@ -1,12 +1,12 @@
 import particle as p
 import numpy as np
 def identify_irreps_particle_rest(name):
-    all_particles = p.read_particles('particles_unfl.txt') + p.read_particles('charmonium.txt')+ p.read_particles('Ds.txt') 
+    all_particles = p.read_particles('Particles/particles_unfl.txt') + p.read_particles('Particles/charmonium.txt')+ p.read_particles('Particles/Ds.txt') 
     for particle in all_particles:
         if particle.name == name:
             J = particle.J
             P = '+' if particle.Parity == 1 else '-'
-    filename = 'O_D^h.txt'
+    filename = 'GroupTheory/O_D^h.txt'
     irreps = []
     with open(filename) as f:
         lines = f.readlines()
@@ -93,13 +93,13 @@ def identify_ni_at_rest_levels_subduction(name1,name2):
 
 #print(identify_ni_at_rest_levels_subduction('\psi','w'))
 def identify_irreps_particle_Dic4(name):
-    all_particles = p.read_particles('particles_unfl.txt') + p.read_particles('charmonium.txt')+ p.read_particles('Ds.txt') 
+    all_particles = p.read_particles('Particles/particles_unfl.txt') + p.read_particles('Particles/charmonium.txt')+ p.read_particles('Particles/Ds.txt') 
     for particle in all_particles:
         if particle.name == name:
             J = particle.J
             P = '+' if particle.Parity == 1 else '-'
             break
-    filename = 'Dic_4.txt'
+    filename = 'GroupTheory/Dic_4.txt'
     irreps = []
     eta = '+' if particle.Parity*(-1)**int(J) == 1 else '-'
     possible_lambdas = np.arange(0,int(J)+1)
@@ -188,7 +188,7 @@ def identify_ni_Dic4_levels_subduction(name1,name2):
         irrepss.append(str(dict[key])+key)
     return irrepss
 def identify_irreps_particle_norest(name,group):
-    all_particles = p.read_particles('particles_unfl.txt') + p.read_particles('charmonium.txt')+ p.read_particles('Ds.txt') 
+    all_particles = p.read_particles('Particles/particles_unfl.txt') + p.read_particles('Particles/charmonium.txt')+ p.read_particles('Particles/Ds.txt') 
     for particle in all_particles:
         if particle.name == name:
             J = particle.J
@@ -250,7 +250,7 @@ def subductions_Dic2_from_irreps(irrep1,irrep2):
     return subduction[index1][index2]
 #print(subductions_Dic4_from_irreps('E_2','E_2'))
 def identify_ni_Dic2_levels_subduction(name1,name2):
-    combinations = idetintify_irreps_two_particles_norest(name1,name2,'Dic_2.txt')
+    combinations = idetintify_irreps_two_particles_norest(name1,name2,'GroupTheory/Dic_2.txt')
     irreps = []
     for combination in combinations:
         name_irrep1 = combination[0]
@@ -296,7 +296,7 @@ def subductions_Dic3_from_irreps(irrep1,irrep2):
 
     return subduction[index1][index2]
 def identify_ni_Dic3_levels_subduction(name1,name2):
-    combinations = idetintify_irreps_two_particles_norest(name1,name2,'Dic_3.txt')
+    combinations = idetintify_irreps_two_particles_norest(name1,name2,'GroupTheory/Dic_3.txt')
     irreps = []
     for combination in combinations:
         name_irrep1 = combination[0]

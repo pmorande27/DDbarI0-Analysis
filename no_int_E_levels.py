@@ -7,7 +7,7 @@ def norm(P):
 def no_int_e_level_p(m_1,P,xi,L):
     return np.sqrt(m_1**2+ (2*np.pi/(L*xi))**2*norm(P)**2)
 def non_int_elevel_at_rest(name_1,name_2,P,xi,Ls):
-    all_particles = p.read_particles('particles_unfl.txt')+p.read_particles('charmonium.txt')+p.read_particles('Ds.txt')
+    all_particles = p.read_particles('Particles/particles_unfl.txt')+p.read_particles('Particles/charmonium.txt')+p.read_particles('Particles/Ds.txt')
     count = 0
     for particle in all_particles:
         if particle.name == name_1:
