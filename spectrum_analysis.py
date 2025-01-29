@@ -7,15 +7,22 @@ from colors import color_coding_dict
 from colors import save_color_code_state
 import sys
 from colors import operator_identification
+from colors import operator_identification_plus
+from particle import read_particles
 import grouptheory as gt
+import matplotlib
 import particle as p
 import no_int_E_levels as no_int
 def read_ax_file(filename):
-    ## Check if file empty
+    """
+    Function used to read the ax files. These files are produced by semble_vfit and contain the information for the
+    Principal correlator plots. The function will read the contents of the file and obtain the relevant pieces.
+    
+    :param filename: The name of the file to be read
+    :return: A dictionary with the data for the plot and the max and min values for the x and y axis
+    """
+    
 
-    blue_initial_1 = []
-    blue_initial_2 = []
-    blue_initial_3 = []
     with open(filename, 'r') as f:
         lines = f.readlines()
         line1 = lines[0]
@@ -54,6 +61,11 @@ def read_ax_file(filename):
    
 
 def list_to_x_y(list):
+    """
+    Function used to convert data of format "x y" where x,y are floats to the tuple (x,y)
+    :param list: A list of strings of format "x y"
+    :return: Two lists, one with the x values and one with the y values
+    """
     x = []
     y = []
     for i in range(len(list)):
@@ -61,6 +73,11 @@ def list_to_x_y(list):
         y += [float(list[i].split('  ')[1])]
     return x, y
 def list_to_x_y_err(list):
+    """
+    Function used to convert data of format "x y err" where x,y,err are floats to the tuple (x,y,err)
+    :param list: A list of strings of format "x y err"
+    :return: Three lists, one with the x values, one with the y values and one with the errors
+    """
     x = []
     y = []
     err = []
@@ -70,7 +87,16 @@ def list_to_x_y_err(list):
         err += [float(list[i].split('  ')[2])]
     return x, y,err
 def plot_ax_file(filename,show,save,save_path):
+    """
+    Function used to plot the data from the ax files. The function will read the data from the file and will combine the 
+    data according to a repeatable pattern present in all the files
+    (at least the ones corresponding to Principal correlator plots)
+    """
+
     dic,max_x,min_x,max_y,min_y = read_ax_file(filename)
+
+    # Get the points of the 3 fits (1-sigma region) in the region from 0 to the first fitted point
+    # In the plot these is shown as a blue line
     blue_1_fit_x = []
     blue_2_fit_x = []
     blue_3_fit_x = []
@@ -80,19 +106,33 @@ def plot_ax_file(filename,show,save,save_path):
     blue_1_fit_x, blue_1_fit_y = list_to_x_y(dic[0])
     blue_2_fit_x, blue_2_fit_y = list_to_x_y(dic[1])
     blue_3_fit_x, blue_3_fit_y = list_to_x_y(dic[2])
+
+    # Get the points of the 3 fits (1-sigma region) in the region from the first fitted point to the last fitted point
+    # In the plot these is shown as a red line
     red_1_fit_x, red_1_fit_y = list_to_x_y(dic[3])
     red_2_fit_x, red_2_fit_y = list_to_x_y(dic[4])
     red_3_fit_x, red_3_fit_y = list_to_x_y(dic[5])
+
+    # Get the points of the 3 fits (1-sigma region) in the region from the last fitted point to the end of the data
+    # In the plot these is shown as a blue line
     blue_4_fit_x, blue_4_fit_y = list_to_x_y(dic[6])
     blue_5_fit_x, blue_5_fit_y = list_to_x_y(dic[7])
     blue_6_fit_x, blue_6_fit_y = list_to_x_y(dic[8])
+
+    # Blue points are the data points that are not included in the fit
     not_in_color = 'teal'
+
+    # Red points are the data points that are included in the fit
     in_color = 'darkred'
     fig,ax = plt.subplots()
+
+    # Set up plot
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     plt.xlim(min_x,max_x)
     plt.ylim(min_y,max_y)
+
+    # Plot the fits
 
     plt.plot(blue_1_fit_x, blue_1_fit_y, label='blue_1',color = not_in_color,linewidth = 0.5)
     plt.plot(blue_2_fit_x, blue_2_fit_y, label='blue_2',color = not_in_color,linewidth = 0.5)
@@ -104,11 +144,15 @@ def plot_ax_file(filename,show,save,save_path):
     plt.plot(blue_5_fit_x, blue_5_fit_y, label='blue_5',color = not_in_color,linewidth = 0.5)
     plt.plot(blue_6_fit_x, blue_6_fit_y, label='blue_6',color = not_in_color,linewidth = 0.5)
 
+    # Obtain data points included in the fit and data points not included in the fit
     data_in_x,data_in_y,data_in_err = list_to_x_y_err(dic[9])
-    plt.errorbar(data_in_x,data_in_y,yerr=data_in_err,fmt='o',color=in_color,label='data',markersize=1.5)
     data_not_in_x,data_not_in_y,data_not_in_err = list_to_x_y_err(dic[10])
+
+    # Plot the data points
+    plt.errorbar(data_in_x,data_in_y,yerr=data_in_err,fmt='o',color=in_color,label='data',markersize=1.5)
     plt.errorbar(data_not_in_x,data_not_in_y,yerr=data_not_in_err,fmt='o',color=not_in_color,label='data_not_in',markersize=1.5)
-    #print(dic[11])
+    
+    # Final set up of plot
     title = dic[11][1]
 
     m = title.split('; ')[1]
@@ -116,17 +160,15 @@ def plot_ax_file(filename,show,save,save_path):
     m_err = m.split('\+-')[1].split('"\n')[0]
     mbefore = m.split(')')[0]
     m_title = f"${mbefore}) = {float(m_val)} \pm {float(m_err)}$"
-    
-
-    #print(m_title)
     before = title.split('; ')[0]
-    #print(before)
     val = before.split('=')[1]
     chi_title = "$\\chi^2/N_{Dof} = $" + val
     title_def = chi_title + '\n' + m_title
     ax.set_xlabel('t')
     ax.set_ylabel('$\\lambda_n \cdot e^{m_n t}$')
     plt.title(title_def)
+
+    # Show or save the plot
     if show:
         plt.show()
     if save:
@@ -136,6 +178,11 @@ def plot_ax_file(filename,show,save,save_path):
 
     
 def calc(file):
+    """
+    Function used to calculate the average and error of the data in a file
+    :param file: The name of the file to be read
+    :return: The average and error of the data in the file
+    """
     data = np.loadtxt(file,skiprows=1)
     n = len(data)
     avg = 0
@@ -148,7 +195,7 @@ def calc(file):
     return avg,err
 
 class Spectrum(object):
-    def __init__(self,volume,t0,irrep,create_files = False,saveAllPlots = False):
+    def __init__(self,volume,t0,irrep,create_files = False,saveAllPlots = False,saveHistPlots = False):
         self.irrep = irrep
         self.volume = volume
         self.t0 = t0
@@ -173,6 +220,11 @@ class Spectrum(object):
             for state in range(self.states):
                 if state not in self.skips:
                     self.plot_correlator(state,False,True)
+        if saveHistPlots:
+            print("Saving histogram plots")
+            for state in range(self.states):
+                if state not in self.skips:
+                    self.plot_histogram_state(state,saveHistPlots)
         
 
     def get_operators(self):
@@ -253,7 +305,7 @@ class Spectrum(object):
             with open(path, "w") as f:
                 f.write(f"{values[i]} {errors[i]}")
 
-    def plot_histogram_state(self,state):
+    def plot_histogram_state(self,state,save = False):
         file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
         names = self.create_names_states(state)
         values = np.zeros(len(names))
@@ -286,7 +338,14 @@ class Spectrum(object):
 
         plt.legend()
         plt.xticks([])
-        plt.show()
+        if not save:
+            plt.show()
+        else:
+            name = f"histogram_state{state}.pdf"
+            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\HistogramPlots\\{name}"
+            plt.savefig(path)
+            plt.close()
+
     
     def plot_correlator(self,state,show,save = False):
 
@@ -337,8 +396,8 @@ class Spectrum(object):
             errors.append(err)
         return masses,errors
     @staticmethod
-    def plot_irrep_mass(spectrums,irrep_name,Ls,Ps,max_state,channel):
-        colors = ['red','blue','green','orange','purple','pink','black','brown','teal','cyan','magenta','grey','lime','olive','yellow','navy','maroon','aqua','fuchsia','silver','red','blue','green','orange','purple','pink','black','brown','yellow','cyan','magenta','grey','lime','olive','teal','navy','maroon','aqua','fuchsia','silver']
+    def plot_irrep_mass(spectrums,irrep_name,Ls,Ps,max_state,channel,th):
+        """colors = ['red','blue','green','orange','purple','pink','black','brown','teal','cyan','magenta','grey','lime','olive','yellow','navy','maroon','aqua','fuchsia','silver','red','blue','green','orange','purple','pink','black','brown','yellow','cyan','magenta','grey','lime','olive','teal','navy','maroon','aqua','fuchsia','silver']
         C_p = '+' if channel['C_parity'] == 1 else '-'
         threshold = 0.72
         channelsDs = p.Ds(channel,threshold)
@@ -351,6 +410,7 @@ class Spectrum(object):
             dict[chan] = colors[i]
         dict = color_coding_dict()
         save_sigmas = []
+
 
         
 
@@ -394,7 +454,7 @@ class Spectrum(object):
         #print(save_sigmas)
 
         plt.xlim(14,26)
-        plt.ylim(0.6,0.74)
+        plt.ylim(0.6,th)
         plt.xticks([16,20,24])
         plt.yticks([0.62,0.64,0.66,0.68,0.70,0.72,0.74])
 
@@ -404,11 +464,11 @@ class Spectrum(object):
 
                 plt.plot(Ls,E,color = dict[dict2[i]],linewidth = 0.7,linestyle = '--')
 
-        plt.legend()
+        plt.legend(fontsize = 6,loc = 'lower right')
         new_Ls = [16,20,24]
         for particle in save_sigmas:
 
-            Es, multiplcities, Lss = plot_sigma_E_levels(particle, new_Ls,Ps,irrep_name)
+            Es, multiplcities, Lss,errors = plot_sigma_E_levels(particle, new_Ls,Ps,irrep_name)
             print(Es,particle,Lss)
             for i,E in enumerate(Es):
                 for j in range(multiplcities[i]):
@@ -416,9 +476,155 @@ class Spectrum(object):
                     chh = (particle,"\sigma")
                     #print(E,Lss[i])
                     #print(Lss[i][0])
-                    plt.errorbar(Lss[i][0]+j*0.1,E[0],yerr=0.01,color = 'brown',fmt='o',markersize = 3)
+                    plt.errorbar(Lss[i][0]+j*0.1,E[0],yerr=errors[i],color = 'grey',alpha=0.3,fmt='o',markersize = 3)
 
         title = 'Irrep: $ '+irrep_name.split('^')[0] + "^{"+irrep_name.split('^')[1] +C_p+'}$'
+        plt.title(title)"""
+        colors = ['red','blue','green','orange','purple','pink','black','brown','teal','cyan','magenta','grey','lime','olive','yellow','navy','maroon','aqua','fuchsia','silver','red','blue','green','orange','purple','pink','black','brown','yellow','cyan','magenta','grey','lime','olive','teal','navy','maroon','aqua','fuchsia','silver']
+        c = channel.copy()
+        C_p = '+' if channel['C_parity'] == 1 else '-'
+        threshold = 0.74
+        channelsDs = p.Ds(channel,threshold)
+        chh = p.channels(channel,threshold)[0]
+        for key in channelsDs.keys():
+            chh[key] = channelsDs[key]
+        dict = {}
+        channels = chh.keys()
+        for i,chan in enumerate(channels):
+            dict[chan] = colors[i]
+        dict = color_coding_dict()
+
+
+        
+
+        
+
+
+        dict2 = {}
+        for i,chan in enumerate(channels):
+            dict2[i] = chan
+        ch = list(channels)
+        counts = {}
+        for i,chan in enumerate(channels):
+            counts[chan] = 0
+        fig, ax = plt.subplots()
+        labels = []
+        av_c = []
+        E_levels = no_int.get_E_levels_in_flight(channel,irrep_name,Ps,Ls)
+        for channel in E_levels.keys():
+            Es,multiplcities = E_levels[channel][0],E_levels[channel][1]
+            padding = np.array([0.001 for l in Es])
+            label = "$" + channel[0] + " " + channel[1] + "$"
+            chan = (channel[0],channel[1])
+            for j in range(multiplcities):
+                if label not in labels and min(Es) < th:
+                    ax.plot(Ls,Es+j*padding,color = dict[chan],label = label)
+                    labels.append(label)
+                    av_c.append(chan) 
+                else:
+                    ax.plot(Ls,Es+j*padding,color = dict[chan])
+        
+        E_levels_sigma = no_int.get_E_levels_irrep_in_flight_sigma(c,irrep_name,Ps)
+        for channel in E_levels_sigma.keys():
+            if channel[1] == 'f_0':
+                ch2 = "\sigma"
+                ch1 = channel[0]
+            else:
+                ch1 = "\sigma"
+                ch2 = channel[0]
+            chan = (ch1,ch2)
+
+            Vs,Es,Errs,mults = E_levels_sigma[channel][0],E_levels_sigma[channel][1],E_levels_sigma[channel][2],E_levels_sigma[channel][3]
+            if Vs == []:
+                print("missing sigma information for ",channel)
+                continue
+            color = dict[chan]
+            label = "$" + ch1 + " " + ch2 + "$"
+            for i,V in enumerate(Vs):
+                Ess = Es[i]
+                Vss = [V for l in Ess]
+                Erss = Errs[i]
+                for j in range(mults):
+                    if label not in labels and min(Ess) < th:
+                        padding = np.array([0.1 for l in Ess])
+
+                        ax.errorbar(Vss+padding*j,Ess,yerr=Erss,color = color,alpha = 0.3,fmt='o',markersize = 3,label = label)
+                        labels.append(label)
+                        av_c.append((ch1,ch2))
+                    else:
+                        padding = np.array([0.1 for l in Ess])
+                        ax.errorbar(Vss+padding*j,Ess,yerr=Erss,color = color,alpha = 0.3,fmt='o',markersize = 3)
+    
+            
+        all_particles = p.read_particles('Particles/particles_unfl.txt')+p.read_particles('Particles/charmonium.txt')+p.read_particles('Particles/Ds.txt')
+
+        for i,channel in enumerate(av_c):
+            for particle in all_particles:
+                if particle.name == channel[0]:
+                    mass_1 = particle.Mass
+                if particle.name == channel[1]:
+                    mass_2 = particle.Mass
+            mass = mass_1 + mass_2
+            ax.plot(Ls,[mass for l in Ls],color = dict[channel],linestyle = '--',linewidth = 0.7)
+                    
+
+        plt.xlim(14,26)
+        plt.ylim(0.6,th)
+        title_name = ""
+        flag = True
+        for i,letter in enumerate(irrep_name):
+            if i == 0:
+                title_name += letter
+
+            elif letter.isnumeric():
+                title_name +=  "_"+letter + "^{"
+                flag = False
+            elif i == 1:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += "^{"+let
+                flag = False
+            elif flag:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += "{" + let
+                flag = False
+            elif i != len(irrep_name)-1:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += let
+            else:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += let + "}"
+
+            
+
+        title = 'Irrep: $ '+title_name+'$' + " " + "$[" +Ps+"]$" 
         plt.title(title)
         volumes = []
         t0s = []
@@ -433,10 +639,12 @@ class Spectrum(object):
             max_states.append(max_state)
         irr = irreps[0]
         for i in range(1,len(irreps)):
+            pass
             if irr != irreps[i]:
                 raise ValueError("Different irreps")
 
         for i,volume in enumerate(volumes):
+            irr = irreps[i]
             t0 = t0s[i]
             max_state = max_states[i]
             skps = skpss[i]
@@ -470,13 +678,248 @@ class Spectrum(object):
 
             
             for i in range(len(mass)):
-                ax.errorbar(xs[i],mass[i],yerr=err[i],fmt='o',c=colors[i],markersize=3)
-                ax.text(xs[i],mass[i],nams[i],fontsize = 8)
+                if mass[i] <= th:
+
+                    ax.errorbar(xs[i],mass[i],yerr=err[i],fmt='o',c=colors[i],markersize=3)
+                    ax.text(xs[i],mass[i],nams[i],fontsize = 8)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         plt.xlabel('Volume')
         plt.ylabel('$a_tE_{cm}$',rotation = 0)
+        irrep_name = irr 
+        name = f"{irrep_name}/Spectrum_{irrep_name}.pdf"
+        plt.legend()
+        plt.savefig(name)
         plt.show()
+    def plot_irrep_mass_superimposed(spectrums,irrep_name,Ls,Ps,max_state,channel,th):
+        colors = ['red','blue','green','orange','purple','pink','black','brown','teal','cyan','magenta','grey','lime','olive','yellow','navy','maroon','aqua','fuchsia','silver','red','blue','green','orange','purple','pink','black','brown','yellow','cyan','magenta','grey','lime','olive','teal','navy','maroon','aqua','fuchsia','silver']
+        C_p = '+' if channel['C_parity'] == 1 else '-'
+        threshold = 0.72
+        channelsDs = p.Ds(channel,threshold)
+        chh = p.channels(channel,threshold)[0]
+        for key in channelsDs.keys():
+            chh[key] = channelsDs[key]
+        dict = {}
+        channels = chh.keys()
+        for i,chan in enumerate(channels):
+            dict[chan] = colors[i]
+        dict = color_coding_dict()
+        save_sigmas = []
+
+
+        
+
+        
+
+
+        dict2 = {}
+        for i,chan in enumerate(channels):
+            dict2[i] = chan
+        ch = list(channels)
+        counts = {}
+        for i,chan in enumerate(channels):
+            counts[chan] = 0
+        labels = []
+        fig, ax = plt.subplots()
+
+        for P in Ps:
+
+            Es,indeces,multiplcities = no_int.E_levels_in_irrep_P(irrep_name,channels,Ls,P,channel,4,threshold)
+            # Assign a color to each channel
+            #colors = plt.cm.get_cmap('hsv', len(ch))
+
+            for i,E in enumerate(Es):
+                counts[ch[indeces[i]]] += 1
+
+                for j in range(multiplcities[i]):
+                    
+                    padding = np.array([0.001 for l in E])
+                    label = '$'+ ch[indeces[i]][0] + ' ' +ch[indeces[i]][1] +'$'
+                    if ch[indeces[i]][1] != '\sigma':
+                        if label not in labels:
+                            ax.plot(Ls,E+j*padding,color =dict[dict2[indeces[i]]],linewidth = 0.7,label = label)
+
+                            labels.append(label)
+                        else:
+                            ax.plot(Ls,E+j*padding,color = dict[dict2[indeces[i]]],linewidth = 0.7)
+                    else:
+                        if ch[indeces[i]][0] not in save_sigmas:
+                            save_sigmas.append(ch[indeces[i]][0])
+        print(save_sigmas)
+        #print(save_sigmas)
+
+        plt.xlim(14,26)
+        plt.ylim(0.6,th)
+        plt.xticks([16,20,24])
+        plt.yticks([0.62,0.64,0.66,0.68,0.70,0.72,0.74])
+
+        for i,ch in enumerate(channels):
+            if counts[ch] != 0:
+                E = no_int.non_int_elevel_at_rest(ch[0],ch[1],np.array([0,0,0]),3.444,Ls)
+
+                plt.plot(Ls,E,color = dict[dict2[i]],linewidth = 0.7,linestyle = '--')
+
+        plt.legend(fontsize = 6,loc = 'lower right')
+        new_Ls = [16,20,24]
+        for particle in save_sigmas:
+
+            Es, multiplcities, Lss,errors = plot_sigma_E_levels(particle, new_Ls,Ps,irrep_name)
+            print(Es,particle,Lss)
+            for i,E in enumerate(Es):
+                for j in range(multiplcities[i]):
+                    #padding = np.array([0.001 for l in Lss[i][0]])
+                    chh = (particle,"\sigma")
+                    #print(E,Lss[i])
+                    #print(Lss[i][0])
+                    plt.errorbar(Lss[i][0]+j*0.1,E[0],yerr=errors[i],color = 'grey',alpha=0.3,fmt='o',markersize = 3)
+
+        title = 'Irrep: $ '+irrep_name.split('^')[0] + "^{"+irrep_name.split('^')[1] +C_p+'}$'
+        plt.title(title)
+        volumes = []
+        t0s = []
+        skpss = []
+        max_states = []
+        irreps = []
+        for spectrum in spectrums:
+            irreps.append(spectrum.irrep)
+            volumes.append(spectrum.volume)
+            t0s.append(spectrum.t0)
+            skpss.append(spectrum.skips)
+            max_states.append(max_state)
+        #irr = irreps[0]
+        for i in range(1,len(irreps)):
+            pass
+            """if irr != irreps[i]:
+                raise ValueError("Different irreps")"""
+
+        for i,volume in enumerate(volumes):
+            irr = irreps[i]
+            t0 = t0s[i]
+            max_state = max_states[i]
+            skps = skpss[i]
+
+            mass,err = spectrums[i].get_masses()
+            mass_,err_ = [],[]
+            for i in range(max_state):
+                mass_.append(mass[i])
+                err_.append(err[i])
+            mass = mass_
+            err = err_
+
+            i = range(len(mass))
+            xs = [volume+0.001*mas for mas in i]
+            nams = [i for i in range(54)]
+            for skip in skps:
+                if skip in nams:
+                    nams.remove(skip)
+            colors = ['black' for l in range(max_state)]
+            dcol = color_coding_file_simple()
+            for j in range(max_state):
+                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                if os.path.exists(name):
+                    with open(name) as f:
+                        lines = f.readlines()
+                        number = int(lines[0])
+                
+                    colors[j] = dcol[number]
+
+            
+
+            
+            for i in range(len(mass)):
+                if mass[i] <= th:
+
+                    ax.errorbar(xs[i],mass[i],yerr=err[i],fmt='o',c=colors[i],markersize=3)
+                    ax.text(xs[i],mass[i],nams[i],fontsize = 8)
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        plt.xlabel('Volume')
+        plt.ylabel('$a_tE_{cm}$',rotation = 0)
+        #irrep_name = irr 
+        #name = f"{irrep_name}/Spectrum_{irrep_name}.pdf"
+        plt.show()    
+    
+    def obtain_levels_of_color(self,color):
+        irr = self.irrep
+        volume = self.volume
+        t0 = self.t0
+        levels = []
+        dcol = color_coding_file_simple()
+        for i in range(self.states):
+            if i not in self.skips:
+                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{i}.txt"
+                if os.path.exists(name):
+                    with open(name) as f:
+                        lines = f.readlines()
+                        number = int(lines[0])
+                        color_state = dcol[number]
+                    if color_state == color:
+                        levels.append(i)
+        return levels
+               
+    def plot_histogram_of_levels_of_color(self,color,level):
+        levels = self.obtain_levels_of_color(color)
+        for i,state in enumerate(levels):
+            if i != level:
+                continue
+            file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+            names = self.create_names_states(state)
+            values = np.zeros(len(names))
+            errors = np.zeros(len(names))
+            for name in names:
+                path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\{name}"
+                a = np.loadtxt(path)
+                val,err = a[0],a[1]
+                values[names.index(name)] = val
+                errors[names.index(name)] = err
+            x = [f"op{i}" for i in range(self.operators)]
+            dict_operators,color_code_dict = color_coding_file(file)
+            print(dict_operators)
+            
+            labels = []
+            x_trues = []
+            errs_trues = []
+            val_trues = []
+            for i,ops in enumerate(x):
+                if color_code_dict[dict_operators[ops]] == color:
+                    x_trues.append(ops)
+                    val_trues.append(values[i])
+                    errs_trues.append(errors[i])
+
+            
+            
+            colors = [color_code_dict[dict_operators[name]] for name in x_trues]
+            dict_operators2 = operator_identification_plus(file_name=file)
+            xnew = [dict_operators2[op] for op in x_trues]
+
+            fig,ax = plt.subplots()
+            print(x_trues,xnew,val_trues,errs_trues)
+
+            rgb_color = matplotlib.colors.to_rgb(color)
+            ## For each operator in the plot make a new color similar to the original one
+            new_colors = []
+            alphas = np.linspace(0.1,1,len(x_trues))
+            for i in range(len(x_trues)):
+
+                new_colors.append((rgb_color[0],rgb_color[1],rgb_color[2],alphas[i]))
+
+            ax.bar(xnew,val_trues,yerr=errs_trues,color=new_colors,label=xnew)
+            name2 =  f"mass_t0_{self.t0}_reorder_state{state}.jack"
+            v = np.loadtxt(f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name2}")
+            value,error = round(v[0],3),round(v[1],3)
+            ax.spines['right'].set_visible(False)
+            ax.spines['top'].set_visible(False)
+
+            plt.title(f"State {state} $m= {value} \pm {error}$")
+
+            plt.legend()
+            ## Change the size of the text ticks
+            plt.xticks(fontsize = 6)
+            plt.xticks([])
+
+            plt.show()
+
+
 
     @staticmethod
     def plot_spectrum_multiple(spectrums,max_state):
@@ -651,6 +1094,7 @@ def plot_sigma_E_levels(particle1,Ls,Ps,irrep_name):
     xi = 3.44
     energies = []
     multiplcities = []
+    errors = []
     Ls = [16,20,24]
 
     Lss = []
@@ -665,13 +1109,21 @@ def plot_sigma_E_levels(particle1,Ls,Ps,irrep_name):
             ## check if path exists
             sigma_E = []
             new_L = []
+            err_E = []
             for L in Ls:
                 path = f"sigma/sigma_E_levels_{P[0]}{P[1]}{P[2]}_{L}.txt"
                 if  os.path.exists(path):
-                    for l in range(len(np.loadtxt(path))):
-                        new_L += [L]
-                        sigma_E += [np.loadtxt(path)[l]]
-                        ranking += [l]
+                    with open(path) as f:
+                        for l,line in enumerate(f):
+                            sigma_E += [float(line.split('+/-')[0])]
+                            if len(line.split('+/-')) == 2:
+                                err_E += [float(line.split('+/-')[1])]
+                            else:
+                                err_E += [0]
+                            new_L += [L]
+                            ranking += [l]
+                            
+                  
             #print(sigma_E)
             all_particles = p.read_particles('Particles/particles_unfl.txt')+p.read_particles('Particles/charmonium.txt')+p.read_particles('Particles/Ds.txt')
             for particle in all_particles:
@@ -692,11 +1144,13 @@ def plot_sigma_E_levels(particle1,Ls,Ps,irrep_name):
                 particle_1_E = no_int.no_int_e_level_p(mass_1,P,3.444,new_L[m])
                 print(particle_1_E,P)
                 E_tot = particle_1_E + sigma_Es
+                err_e = err_E[m]
+                errors.append(err_e)
+
                 energies.append([E_tot])
                 Lss.append([new_L[m]])
                 multiplcities.append(multiplcity)
-
-    return energies,multiplcities,Lss
+    return energies,multiplcities,Lss,errors
 
 
 def E_level_in_irrep_sigma_rest(irrep_name,name_1,name_2,P,channel,Jmax,threshold):
@@ -742,4 +1196,149 @@ def E_level_in_irrep_sigma_rest(irrep_name,name_1,name_2,P,channel,Jmax,threshol
 
 #obtain_Z_t0(55,54,8,[38])     
 #[renormalize(i,54,8,[38]) for i in range(55)]
+def plot_irrep_mass_in_flight(irrep_name,Ls,Ps,channel,th):
+        colors = ['red','blue','green','orange','purple','pink','black','brown','teal','cyan','magenta','grey','lime','olive','yellow','navy','maroon','aqua','fuchsia','silver','red','blue','green','orange','purple','pink','black','brown','yellow','cyan','magenta','grey','lime','olive','teal','navy','maroon','aqua','fuchsia','silver']
+        c = channel.copy()
+        C_p = '+' if channel['C_parity'] == 1 else '-'
+        threshold = 0.74
+        channelsDs = p.Ds(channel,threshold)
+        chh = p.channels(channel,threshold)[0]
+        for key in channelsDs.keys():
+            chh[key] = channelsDs[key]
+        dict = {}
+        channels = chh.keys()
+        for i,chan in enumerate(channels):
+            dict[chan] = colors[i]
+        dict = color_coding_dict()
 
+
+        
+
+        
+
+
+        dict2 = {}
+        for i,chan in enumerate(channels):
+            dict2[i] = chan
+        ch = list(channels)
+        counts = {}
+        for i,chan in enumerate(channels):
+            counts[chan] = 0
+        fig, ax = plt.subplots()
+        labels = []
+        E_levels = no_int.get_E_levels_in_flight(channel,irrep_name,Ps,Ls)
+        for channel in E_levels.keys():
+            Es,multiplcities = E_levels[channel][0],E_levels[channel][1]
+            padding = np.array([0.001 for l in Es])
+            label = "$" + channel[0] + " " + channel[1] + "$"
+            chan = (channel[0],channel[1])
+            for j in range(multiplcities):
+                if label not in labels and min(Es) < th:
+                    ax.plot(Ls,Es+j*padding,color = dict[chan],label = label)
+                    labels.append(label)
+                else:
+                    ax.plot(Ls,Es+j*padding,color = dict[chan])
+        
+        E_levels_sigma = no_int.get_E_levels_irrep_in_flight_sigma(c,irrep_name,Ps)
+        print(E_levels_sigma)
+        for channel in E_levels_sigma.keys():
+            if channel[1] == 'f_0':
+                ch2 = "\sigma"
+                ch1 = channel[0]
+            else:
+                ch1 = "\sigma"
+                ch2 = channel[0]
+            chan = (ch1,ch2)
+
+            Vs,Es,Errs,mults = E_levels_sigma[channel][0],E_levels_sigma[channel][1],E_levels_sigma[channel][2],E_levels_sigma[channel][3]
+            if Vs == []:
+                print("missing sigma information for ",channel)
+                continue
+            color = dict[chan]
+            label = "$" + ch1 + " " + ch2 + "$"
+            for i,V in enumerate(Vs):
+                Ess = Es[i]
+                Vss = [V for l in Ess]
+                Erss = Errs[i]
+                for j in range(mults):
+                    if label not in labels and min(Ess) < th:
+                        padding = np.array([0.1 for l in Ess])
+
+                        ax.errorbar(Vss+padding*j,Ess,yerr=Erss,color = color,alpha = 0.3,fmt='o',markersize = 3,label = label)
+                        labels.append(label)
+                    else:
+                        padding = np.array([0.1 for l in Ess])
+                        ax.errorbar(Vss+padding*j,Ess,yerr=Erss,color = color,alpha = 0.3,fmt='o',markersize = 3)
+
+            
+
+        
+        plt.xlim(14,26)
+        plt.ylim(0.6,th)
+        title_name = ""
+        flag = True
+        for i,letter in enumerate(irrep_name):
+            if i == 0:
+                title_name += letter
+
+            elif letter.isnumeric():
+                title_name +=  "_"+letter + "^{"
+                flag = False
+            elif i == 1:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += "^{"+let
+                flag = False
+            elif flag:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += "{" + let
+                flag = False
+            elif i != len(irrep_name)-1:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += let
+            else:
+                if letter == "M":
+                    let = "-"
+                elif letter == "P":
+                    let = "+"
+                elif letter == "m":
+                    let = "-"
+                elif letter == "p":
+                    let = "+"
+                title_name += let + "}"
+
+            
+
+        title = 'Irrep: $ '+title_name+'$' + " " + "$[" +Ps+"]$" 
+        plt.title(title)
+        
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        plt.xlabel('Volume')
+        plt.legend()
+        plt.ylabel('$a_tE_{cm}$',rotation = 0)
+        
+        
+        path = f"ni irreps/NI Spectrum_{irrep_name}_[{Ps}].pdf"
+        plt.savefig(path)
+        plt.show()

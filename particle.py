@@ -1,8 +1,27 @@
 import quantum_numbers
 import angular_mom
 import matplotlib.pyplot as plt
+import grouptheory as gt
 class Particle(object):
+    """
+    Object that contains the information of a particle, useful to package all the information
+    """
     def __init__(self,name,Isospin,Isospin_charm, C_parity,Charm,Strange,Mass,Parity,J):
+        """
+        Constructor of the Particle object
+        :param name: Name of the particle
+        :param Isospin: Isospin of the particle
+        :param Isospin_charm: In HadSpec we work with a degenerate pair of charm quarks, charm and e-quark, having therefore an additional SU(2)
+                              symmetry and an associated conserved number called Isospin_charm. This number is 0 for the charm quark and 1 for 
+                              the e-quark. This is performed to work with in a theory which effecitvely forbbids c cbar pairs to annhielate by working
+                              with Isospin_charm = 0 channels.
+        :param C_parity: C parity of the particle
+        :param Charm: Charmness of the particle
+        :param Strange: Strangeness of the particle
+        :param Mass: Mass of the particle
+        :param Parity: Parity of the particle
+        :param J: Intrinsic Angular momentum of the particle
+        """
         self.name = name
         self.Parity = Parity
         self.Isospin_charm = Isospin_charm
@@ -13,6 +32,10 @@ class Particle(object):
         self.Isospin = Isospin
         self.J = J
     def __str__(self):
+        """
+        String representation of the Particle object
+        :return: String representation of the Particle object
+        """
         Parity = '+' if self.Parity == 1 else '-'
         if self.C_parity == 1:
             C_parity = '+'
@@ -22,33 +45,82 @@ class Particle(object):
             C_parity = ''
         return self.name + ' ' + str(self.Isospin) + ' ' +  str(self.J) + '^{'+str(Parity)+str(C_parity) + '} '
 def two_particles_inchannel(particel_one,particle_two,channel_charm,channel_strange,channel_isospin,channel_charm_isospin,channel_C_parity):
+    """
+    Function that checks if a state formed by a pair of particles are in a given channel, 
+    meaning that they can produce the quantum numbers of the channel.
+    :param particel_one: Particle object corresponding to the first particle
+    :param particle_two: Particle object corresponding to the second particle
+    :param channel_charm: Charmness of the channel
+    :param channel_strange: Strangeness of the channel
+    :param channel_isospin: Isospin of the channel
+    :param channel_charm_isospin: Isospin_charm of the channel
+    :param channel_C_parity: C parity of the channel
+    :return: True if the pair of particles are in the channel, False otherwise
+    """
+    # Calculate possible Isospin combinations
     Isospins = quantum_numbers.Isospin(particel_one.Isospin,particle_two.Isospin)
+
+    # Calculate possible Isospin_charm combinations
     charm_Isospins = quantum_numbers.Isospin(particel_one.Isospin_charm,particle_two.Isospin_charm)
+
+    # Calculate Charmness of the pair
     Charm = quantum_numbers.Charm(particel_one.Charm,particle_two.Charm)
+
+    # Calculate Strangeness of the pair
     Strange = quantum_numbers.Strangeness(particel_one.Strange,particle_two.Strange)
+
+    # If C_parity is conserved check for C_parity of the pair
     if particel_one.Charm == 0 and particle_two.Charm == 0 and particel_one.Strange == 0 and particle_two.Strange == 0:
         C_parity =quantum_numbers.Charge_conjugation(particel_one.C_parity,particle_two.C_parity)
-
+        # Check if the pair of particles are in the channel
         if channel_charm== Charm and channel_strange == Strange and channel_isospin in Isospins and channel_charm_isospin in charm_Isospins and channel_C_parity == C_parity:
             return True
         else:
             return False
+    # If C_parity not conserved just ignore it and check for the rest of the properties.
     else:
         if channel_charm== Charm and channel_strange == Strange and channel_isospin in Isospins and channel_charm_isospin in charm_Isospins:
             return True
         else:
             return False
+
+
 def three_particles_inchannel(particel_one,particle_two,particle_three,channel_charm,channel_strange,channel_isospin,channel_charm_isospin,channel_C_parity):
+    """
+    Function that checks if a state formed by a pair of particles are in a given channel,
+    meaning that they can produce the quantum numbers of the channel.
+    :param particel_one: Particle object corresponding to the first particle
+    :param particle_two: Particle object corresponding to the second particle
+    :param particle_three: Particle object corresponding to the third particle
+    :param channel_charm: Charmness of the channel
+    :param channel_strange: Strangeness of the channel
+    :param channel_isospin: Isospin of the channel
+    :param channel_charm_isospin: Isospin_charm of the channel
+    :param channel_C_parity: C parity of the channel
+    :return: True if the pair of particles are in the channel, False otherwise
+    """
+    
+    # Calculate possible Isospin combinations
     Isospins = quantum_numbers.Isospin_three_particles(particel_one.Isospin,particle_two.Isospin,particle_three.Isospin)
+    
+    # Calculate possible Isospin_charm combinations
     charm_Isospins = quantum_numbers.Isospin_three_particles(particel_one.Isospin_charm,particle_two.Isospin_charm,particle_three.Isospin_charm)
+    
+    # Calculate Charmness of the trio
     Charm = quantum_numbers.Charm_three_particles(particel_one.Charm,particle_two.Charm,particle_three.Charm)
+    
+    # Calculate Strangeness of the trio
     Strange = quantum_numbers.Strangeness_three_particles(particel_one.Strange,particle_two.Strange,particle_three.Strange)
+    
+    # If C_parity is conserved check for C_parity of the trio
     C_parity = quantum_numbers.Charge_conjugation_three_particles(particel_one.C_parity,particle_two.C_parity,particle_three.C_parity)
     if particel_one.Charm == 0 and particle_two.Charm == 0 and particle_three.Charm == 0 and particel_one.Strange == 0 and particle_two.Strange == 0 and particle_three.Strange == 0:
         if channel_charm== Charm and channel_strange == Strange and channel_isospin in Isospins and channel_charm_isospin in charm_Isospins and channel_C_parity == C_parity:
             return True
         else:
             return False
+    
+    # If C_parity not conserved just ignore it and check for the rest of the properties.
     else:
         if channel_charm== Charm and channel_strange == Strange and channel_isospin in Isospins and channel_charm_isospin in charm_Isospins:
             return True
@@ -56,6 +128,11 @@ def three_particles_inchannel(particel_one,particle_two,particle_three,channel_c
             return False
 
 def read_particles(filename):
+    """
+    Function that reads the particles from a file and creates a list of Particle objects
+    :param filename: Name of the file where the particles are stored
+    :return: List of Particle objects
+    """
     particles = []
     with open(filename) as f:
         for i,line in enumerate(f):
@@ -65,6 +142,14 @@ def read_particles(filename):
             particles.append(Particle(data[0],float(data[1]),float(data[2]),int(data[3]),int(data[4]),float(data[5]),data[6],int(data[7]),data[8]))
     return particles
 def channels(channel,threshold):
+    """
+    Function that calculates the pairs (and trios) of particles that can form a given channel (set of quantum numbers) and a 
+    given threshold energy
+    :param channel: Dictionary containing the quantum numbers of the channel
+    :param threshold: Threshold energy
+    :return: Dictionary containing the pairs of particles that can form the channel and their threshold energies and a dictionary
+    containing the trios of particles that can form the channel and their threshold energies
+    """
     
     particles = read_particles('Particles/particles_unfl.txt')
     charmonmium = read_particles('Particles/charmonium.txt')
@@ -129,7 +214,9 @@ def channels(channel,threshold):
             dic2[i] = real_m2[index]
     sorted_dic2 = dict(sorted(dic2.items(), key=lambda item: item[1]))
     return sorted_dic,sorted_dic2
+"""
 def all_channels():
+   
     
     particles = read_particles('Particles/particles_unfl.txt')
     charmonmium = read_particles('Particles/charmonium.txt')
@@ -197,7 +284,13 @@ def all_channels():
             dic2[i] = real_m2[index]
     sorted_dic2 = dict(sorted(dic2.items(), key=lambda item: item[1]))
     return sorted_dic,sorted_dic2
+"""
 def particle_dict():
+    """
+    Function that creates a dictionary with the particles and their names as keys, it loads all the files in the 
+    Particles folder (by hand, could fix this in the future)
+    :return: Dictionary with the particles and their names as keys
+    """
     particles = read_particles('Particles/particles_unfl.txt')
     charmonmium = read_particles('Particles/charmonium.txt')
     Ds = read_particles('Particles/Ds.txt')
@@ -206,10 +299,104 @@ def particle_dict():
     for p in all_particles:
         particle_dict[p.name] = p
     return particle_dict   
-                 
+def possible_partial_waves_per_irrep_rest(channel,Jmax,threshold):
+    """
+    Function that calculates the possible partial waves for each irrep at rest given a channel (set of quantum numbers) and a threshold energy
+    :param channel: Dictionary containing the quantum numbers of the channel
+    :param Jmax: Maximum angular momentum being considered
+    :param threshold: Threshold energy
+    :return: Dictionary containing the possible partial waves for each irrep at rest, this is a dictionary of dictionaries.
+    The keys of the first one being the irreps and the inner one keys being the pair of particles which subduce to that irrep, the final values
+    are the partial waves of that pair of partciles which subduce to that irrep.
+    """
+    
+    # Obtain dictionary of dictionaries with the first one having keys J^{PC} in a given channel and the inner one having pair of particles 
+    # as keys and lists of partial waves as values
+    partial_waves_dic = partial_waves(channel,Jmax,threshold)
+
+    # Repeat for particle pairs with additional symmetry constraints
+    Ds_partial_waves_dic = Ds_partial_waves(channel,Jmax,threshold)
+    for i in Ds_partial_waves_dic.keys():
+        if i in partial_waves_dic.keys():
+            partial_waves_dic[i].update(Ds_partial_waves_dic[i])
+        else:
+            partial_waves_dic[i] = Ds_partial_waves_dic[i]
+    # Create a dictionary with the possible angular momentum for each irrep
+    irrep_Js = gt.J_in_irrep_rest()
+    dic = {}
+    # Iterate over the possible angular momentum for each irrep and create a dictionary with the possible partial waves for each irrep
+    for key in irrep_Js.keys():
+        for J in irrep_Js[key]:
+
+            if J in partial_waves_dic.keys():
+                for chan in partial_waves_dic[J].keys():
+                    if key in dic.keys():
+                        if chan in dic[key].keys():
+                            dic[key][chan] += partial_waves_dic[J][chan].copy()
+                        else:
+                            dic[key][chan] = partial_waves_dic[J][chan].copy()
+                        
+                    else:
+                        dic[key] = {chan:partial_waves_dic[J][chan].copy()}
+                
+    return dic
+def possible_partial_waves_per_irrep_D4(channel,Jmax,threshold):
+    """
+    Function that calculates the possible partial waves for each irrep in a moving frame with one unit of momentum (100) given a channel
+    (set of quantum numbers) and a threshold energy
+    :param channel: Dictionary containing the quantum numbers of the channel
+    :param Jmax: Maximum angular momentum being considered
+    :param threshold: Threshold energy
+    :return: Dictionary containing the possible partial waves for each irrep at rest, this is a dictionary of dictionaries.
+    The keys of the first one being the irreps and the inner one keys being the pair of particles which subduce to that irrep, the final values
+    are the partial waves of that pair of partciles which subduce to that irrep.
+    """
+    # Obtain dictionary of dictionaries with the first one having keys J^{PC} in a given channel and the inner one having pair of particles 
+    # as keys and lists of partial waves as values
+    partial_waves_dic = partial_waves(channel,Jmax,threshold)
+
+    # Repeat for particle pairs with additional symmetry constraints
+    Ds_partial_waves_dic = Ds_partial_waves(channel,Jmax,threshold)
+    for i in Ds_partial_waves_dic.keys():
+        if i in partial_waves_dic.keys():
+            partial_waves_dic[i].update(Ds_partial_waves_dic[i])
+        else:
+            partial_waves_dic[i] = Ds_partial_waves_dic[i]
+    # Create a dictionary with the possible angular momentum for each irrep with one unit of momenutm (100)
+    irrep_Js = gt.Js_in_irrep_D4(Jmax)
+    dic = {}
+
+    # Iterate over the possible angular momentum for each irrep and create a dictionary with the possible partial waves for each irrep
+    for key in irrep_Js.keys():
+        
+        for J in irrep_Js[key]:
+           
+
+            if J in partial_waves_dic.keys():
+                for chan in partial_waves_dic[J].keys():
+                    m = partial_waves_dic[J][chan]
+                    if key in dic.keys():
+                        if chan in dic[key].keys():
+                            
+                            for partial_wave in partial_waves_dic[J][chan]:
+                               
+                                    
+                                
+                                dic[key][chan] += [partial_wave]
+                            
+                               
+                        else:
+                            dic[key][chan] = partial_waves_dic[J][chan].copy()
+                        
+                    else:
+                        dic[key] = {chan:partial_waves_dic[J][chan].copy()}
+                
+    return dic
+
+
 def partial_waves(channel,Jmax,threshold):
     particles_dict = particle_dict()
-    two_channel, three_channel = channels(channel,threshold)
+    two_channel, _ = channels(channel,threshold)
     JP = {}
 
     for key in two_channel.keys():
@@ -232,6 +419,54 @@ def partial_waves(channel,Jmax,threshold):
     
 
     return JP
+def create_table_partial_wave_irrep(channel,Jmax,threshold,mom):
+    names = {0:'S',1:'P',2:'D',3:'F',4:'G',5:'H',6:'I',7:'J',8:'K',9:'L',10:'M',11:'N',12:'O'}
+    max_l =4
+    reversed_names = {v: k for k, v in names.items()}
+    channelss = all_possible_channels()
+    flag = False
+    if channel['C_parity'] == 1:
+        cp = '+'
+    elif channel['C_parity'] == -1:
+        cp = '-'
+    if mom == "000":
+        dic = possible_partial_waves_per_irrep_rest(channel,Jmax,threshold)
+    elif mom == "100":
+        dic = possible_partial_waves_per_irrep_D4(channel,Jmax,threshold)
+        flag = True
+    else:
+        raise ValueError('Invalid momentum for now only 000 and 100 are supported')
+    for key in dic.keys():
+        irrep_name = key
+        if not flag:
+            ir = key.split('^')[0]
+            par = key.split('^')[1]
+            irrep_name = ir +'^{'+par+cp+'}'
+        
+        print( ' \\begin{table}[H]\\begin{tabularx}{\\textwidth}{YYY}  \\toprule Channel  &Partial Waves & $E_{th}$\\\\ \midrule')
+
+        for ch in dic[key].keys():
+           
+            all_waves = ""
+            for i,wave in enumerate(dic[key][ch]):
+                letter = wave.split('_')[0][len(wave.split('_')[0])-1]
+                number = reversed_names[letter]
+                wavey = ""
+                if number >= max_l:
+
+                    wavey +="\\textcolor{gray}{"+ str(wave)+"}"
+                else:
+                    wavey += str(wave)
+
+                if i == len(dic[key][ch])-1:
+                    all_waves += wavey
+                else: 
+                    all_waves += wavey+ ','
+
+            print(ch + " & " + all_waves + "&"+ str(round(channelss[ch],3))+'\\\\')
+        print( '\\bottomrule\end{tabularx}')
+        print('\caption{Partial Waves for $' + irrep_name +'$ with maximum threshold energy $E_t$ = $' +str(threshold)+'$} \end{table}')
+
 def format_1(J,name,projection):
     texts = []
     names = {0:'S',1:'P',2:'D',3:'F',4:'G',5:'H',6:'I',7:'J',8:'K',9:'L',10:'M',11:'N',12:'O'}
@@ -309,7 +544,7 @@ def printing(channel,Jmax,threshold):
         print('\n')
     print('\end{document}')
 def bar(string):
-    if string[0] == '\\':
+    if "\\bar{" in string:
         b = string.split('\\bar{')[1]
         l = ''
         count = 0
@@ -490,3 +725,84 @@ def all_particles_table():
 #all_particles_table()
 
 
+def check_partial_waves_in_irrep(channel,Jmax,threshold):
+    dic_irreps = possible_partial_waves_per_irrep_rest(channel,Jmax,threshold)
+    particles_dic = particle_dict()
+    names = {0:'S',1:'P',2:'D',3:'F',4:'G',5:'H',6:'I',7:'J',8:'K',9:'L',10:'M',11:'N',12:'O'}
+    possible_Jp_in_irrep = gt.J_in_irrep_rest()
+
+    reversed_names = {v: k for k, v in names.items()}
+    for key in dic_irreps.keys():
+        for chan in dic_irreps[key].keys():
+            for wave in dic_irreps[key][chan]:
+                l = reversed_names[wave[3]]
+                J = float(wave[6])
+                def remove_dol(str):
+                    r = ''
+                    for s in str:
+                        if s != '$':
+                            r += s
+                    return r
+                p_1 = remove_dol(chan.split(' ')[0])
+                p_2 = remove_dol(chan.split(' ')[1])
+                for particle in particle_dict().keys():
+                    if particle == p_1:
+                        p1 = particle_dict()[particle]
+                    if particle == p_2:
+                        p2 = particle_dict()[particle]
+                parity_1 = p1.Parity
+                parity_2 = p2.Parity
+                parity_t = parity_1*parity_2*(-1)**(l)
+                if parity_t == 1:
+                    parity = '+'
+                else:
+                    parity = '-'
+                J_p = str(J) + parity
+                if J_p in possible_Jp_in_irrep[key]:
+                    print('The partial wave '+ wave + ' is in the irrep ' + key + ' for the channel ' + p_1 + ' ' + p_2)
+                else:
+                    raise ValueError('The partial wave '+ wave + ' is not in the irrep ' + key + ' for the channel ' + p_1 + ' ' + p_2)
+                
+
+def check_partial_waves_in_irrep_D4(channel,Jmax,threshold):
+    dic_irreps = possible_partial_waves_per_irrep_D4(channel,Jmax,threshold)
+    particles_dic = particle_dict()
+    names = {0:'S',1:'P',2:'D',3:'F',4:'G',5:'H',6:'I',7:'J',8:'K',9:'L',10:'M',11:'N',12:'O'}
+    possible_Jp_in_irrep = gt.Js_in_irrep_D4(Jmax)
+
+    reversed_names = {v: k for k, v in names.items()}
+    for key in dic_irreps.keys():
+        for chan in dic_irreps[key].keys():
+            for wave in dic_irreps[key][chan]:
+                l = reversed_names[wave[3]]
+                J = float(wave[6])
+                def remove_dol(str):
+                    r = ''
+                    for s in str:
+                        if s != '$':
+                            r += s
+                    return r
+                p_1 = remove_dol(chan.split(' ')[0])
+                p_2 = remove_dol(chan.split(' ')[1])
+                for particle in particle_dict().keys():
+                    if particle == p_1:
+                        p1 = particle_dict()[particle]
+                    if particle == p_2:
+                        p2 = particle_dict()[particle]
+                parity_1 = p1.Parity
+                parity_2 = p2.Parity
+                parity_t = parity_1*parity_2*(-1)**(l)
+                if parity_t == 1:
+                    parity = '+'
+                else:
+                    parity = '-'
+                J_p = str(J) + parity
+                if J_p in possible_Jp_in_irrep[key]:
+                    print('The partial wave '+ wave + ' is in the irrep ' + key + ' for the channel ' + p_1 + ' ' + p_2)
+                else:
+                    raise ValueError('The partial wave '+ wave + ' is not in the irrep ' + key + ' for the channel ' + p_1 + ' ' + p_2)
+                
+
+
+                
+           
