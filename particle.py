@@ -6,7 +6,7 @@ class Particle(object):
     """
     Object that contains the information of a particle, useful to package all the information
     """
-    def __init__(self,name,Isospin,Isospin_charm, C_parity,Charm,Strange,Mass,Parity,J):
+    def __init__(self,name,Isospin,Isospin_charm, C_parity,Charm,Strange,Mass,Parity,J,mass_err):
         """
         Constructor of the Particle object
         :param name: Name of the particle
@@ -31,6 +31,7 @@ class Particle(object):
         self.Mass = float(Mass)
         self.Isospin = Isospin
         self.J = J
+        self.mass_err = mass_err
     def __str__(self):
         """
         String representation of the Particle object
@@ -139,7 +140,7 @@ def read_particles(filename):
             if i == 0:
                 continue
             data = line.split()
-            particles.append(Particle(data[0],float(data[1]),float(data[2]),int(data[3]),int(data[4]),float(data[5]),data[6],int(data[7]),data[8]))
+            particles.append(Particle(data[0],float(data[1]),float(data[2]),int(data[3]),int(data[4]),float(data[5]),data[6],int(data[7]),data[8],float(data[9])))
     return particles
 def channels(channel,threshold):
     """

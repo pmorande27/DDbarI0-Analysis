@@ -295,6 +295,11 @@ def color_coding_file(filename):
     color_code_dict[23] = 'aquamarine'
     color_code_dict[24] = 'teal'
     color_code_dict[25] = 'skyblue'
+    dict_nums_to_channel[26] = '$q\\Gamma \\bar{q} ~0^{+-}$'
+    color_code_dict[26] = 'purple'
+    dict_nums_to_channel[27] = '$q\\Gamma \\bar{q} ~2^{+-}$'
+    color_code_dict[27] = 'magenta'
+
 
     color_code_dict_new = {}
     for key in color_code_dict.keys():
@@ -306,9 +311,14 @@ def color_coding_file(filename):
 
 def color_coding_file_simple():
     dict_nums_to_channel = {}
+    dict_nums_to_channel = {}
+    dict_nums_to_channel[0] = "Unclear"
     dict_nums_to_channel[1] = '$q\\Gamma \\bar{q} ~1^{--}$'
     dict_nums_to_channel[2] = '$q\\Gamma \\bar{q} ~3^{--}$'
     dict_nums_to_channel[3] = '$q\\Gamma \\bar{q} ~4^{--}$'
+    dict_nums_to_channel[23] = '$q\\Gamma \\bar{q} ~1^{+-}$'
+    dict_nums_to_channel[24] = '$q\\Gamma \\bar{q} ~3^{+-}$'
+    dict_nums_to_channel[25] = '$q\\Gamma \\bar{q} ~4^{+-}$'
 
 
     dict_nums_to_channel[4] = '$D \\bar{D}$'
@@ -327,6 +337,7 @@ def color_coding_file_simple():
     dict_nums_to_channel[15] = "$\\psi \\eta'$"
 
     color_code_dict = {}
+    color_code_dict[0] = 'black'
     color_code_dict[1] = 'aquamarine'
     color_code_dict[2] = 'teal'
     color_code_dict[3] = 'skyblue'
@@ -344,6 +355,13 @@ def color_coding_file_simple():
     color_code_dict[13] = 'darkviolet'
     color_code_dict[14] = 'pink'
     color_code_dict[15] = 'darkred'
+    color_code_dict[23] = 'aquamarine'
+    color_code_dict[24] = 'teal'
+    color_code_dict[25] = 'skyblue'
+    dict_nums_to_channel[26] = '$q\\Gamma \\bar{q} ~0^{+-}$'
+    color_code_dict[26] = 'purple'
+    dict_nums_to_channel[27] = '$q\\Gamma \\bar{q} ~2^{+-}$'
+    color_code_dict[27] = 'magenta'
 
     
     return color_code_dict
@@ -447,7 +465,7 @@ def operator_identification_plus(file_name):
 
             p1 = identify_particle_plus(p1)
             p2 = identify_particle_plus(p2)
-            channel = "$"+p1+'['+momentump1+']\\text{ }' +irrep1+'\\text{ }'+p2 +'['+momentump1+']\\text{ }' +irrep2+ " $"
+            channel = "$"+p1+'['+momentump1+']\\text{ }' +irrep1+'\\text{ }'+p2 +'['+momentump2+']\\text{ }' +irrep2+ " $"
             dict_ops[op] = channel
         else:
             J = operators_full_name[i].split('__J')[1].split('_')[0]
@@ -539,3 +557,173 @@ def create_table_operators_2( irrep1,irrep2,volume):
         elif ops_dic1[key] != ops_dic2[key]:
             print(f"\\item Eliminates ${str(abs(ops_dic1[key] -ops_dic2[key]))}$ of {key}")
     print("\\end{itemize}")
+def obtain_out_xml_information(path):
+    file_name = path
+    count = 0
+    count_corr = 0
+    parameters = False
+    dict_params = {}
+    corr_data = False
+    corr_dict = {}
+    with open(file_name) as f:
+        lines = f.readlines()
+        for line in lines:
+            if "<chisq>" in line:
+                chisq = float(line.split("<chisq>")[1].split("</chisq>")[0])
+            if "<nData>" in line:
+                nData = int(line.split("<nData>")[1].split("</nData>")[0])
+            if "<nFreeParams>" in line:
+                nFreeParams = int(line.split("<nFreeParams>")[1].split("</nFreeParams>")[0])
+            
+            if "# ext." in line:
+                parameters = True
+            elif parameters:
+                if line == '\n':
+                    count += 1	
+                    if count == 2:
+                        
+                        parameters = False
+                else:
+                    data = line.split("||")
+                    ext = data[0].strip()
+                    name = name_conversion(data[1].strip())
+                    type = data[2].strip()
+                    value = round(float(data[3].strip()),4)
+                    if data[4]=="\n":
+                        error = 0
+                    else:
+                        error = round(float(data[4].strip()),4)
+                    dict_params[name] = (ext,type,value,error)
+            if "<CORR>" in line and count_corr == 0:
+                count_corr += 1
+                corr_data = True
+            if "</CORR>" in line:
+                corr_data = False
+            if corr_data:
+                if "<First>" in line:
+                    name_1 = line.split("<First>")[1].split("</First>")[0]
+                if "<Second>" in line:
+                    name_2 = line.split("<Second>")[1].split("</Second>")[0]
+                if "<Val>" in line:
+                    value = round(float(line.split("<Val>")[1].split("</Val>")[0]),2)
+                    key =(name_conversion(name_1),name_conversion(name_2))
+                    corr_dict[key] = value
+
+                    
+    return dict_params,corr_dict,chisq,nData,nFreeParams
+def name_conversion(name):
+    parts = name.split('_')
+    JP = parts[0]
+    type = parts[1]
+    name_2 = ""
+    for i in JP:
+        if i.isnumeric():
+            J = i
+        if i == '-':
+            P = '-'
+        if i == '+':
+            P = '+'
+    JP = f'{J}^{P}'
+    if type == "m":
+        pole = parts[2]
+        for p in pole:
+            if p.isnumeric():
+                number = p
+        name_2 = 'm^{('+number+")}_{J="+f"{J}^{P}"+"}"
+        return name_2
+    if type == "g":
+        particles = parts[2].split('/')[0].split(':')
+        partial_wave = name.split('/')[1]
+
+        pole = partial_wave.split('_pole')[1]
+        partial_wave = partial_wave.split('_pole')[0]
+        particles = "".join(particles)
+        
+        s= "^"
+        for p in partial_wave:
+            if p!= "^":
+                s+=p
+
+        name_2 =  'g^{('+pole+")}_{"+ particles+"\{"+s+"\}}"
+    if type == "gamma":
+        p1 = name.split("|")[0].split("/")[0].split("_")[2]
+        p2 = name.split("|")[1].split("/")[0]
+        partial_wave_1 = name.split("|")[0].split("/")[1]
+        partial_wave_2 = name.split("|")[1].split("/")[1].split("_order")[0]
+        s = "^"
+        s2 = "^"
+        for l in partial_wave_1:
+            if l != "^":
+                s+=l
+        for l in partial_wave_2:
+            if l != "^":
+                s2+=l
+        order = parts[len(parts)-1].split('order')[1]
+       
+        p1s = p1.split(':')
+        p2s = p2.split(':')
+        to_string = p1s[0]+p1s[1]+"{"+s+"}"+"\\to "+p2s[0]+"{"+s2+"}"+p2s[1]
+        name_2 =  '\gamma^{('+order+")}_{"+to_string+"}"
+
+
+
+    return name_2
+            
+def create_matrix_correlator(path):
+    params,corr_dict,_,_,_ = obtain_out_xml_information(path)
+    print("\[")
+    print("\\begin{bmatrix}")
+    inn = []
+    keys = list(params.keys())
+    for key in keys:
+        l = ""
+        for j,key2 in enumerate(keys):
+            type_1 = params[key][1]
+            type_2 = params[key2][1]
+            
+
+            val = str(corr_dict[(key,key2)])
+            if (key,key2) in inn or (key2,key) in inn:
+                val = "     "
+
+            if type_1 == "fixed" or type_2 == "fixed":
+                continue
+            if j == len(keys)-1:
+                l += val + " \\\\"
+            else:
+                l += val+ " & "
+            inn+= [(key,key2)]
+        if l != "":
+            print(l)
+    
+    print("\\end{bmatrix}")
+    print("\]")
+
+    
+    
+def print_alling_xml_information(path):
+    params ,corr_dict,_,_,_= obtain_out_xml_information(path)
+    print("\\begin{align*}")
+    for i,key in enumerate(params.keys()):
+
+        if params[key][1] != "fixed":
+            if i == len(params.keys())-1:
+                print(f"{key} &= {params[key][2]}\pm {params[key][3]}")
+            else:
+                print(f"{key} &= {params[key][2]}\pm {params[key][3]}\\\\")
+        
+
+
+    print("\\end{align*}")
+def print_chisq(path):
+    params ,corr_dict,chisq,nData,nFreeParams = obtain_out_xml_information(path)
+    print("\\begin{align*}")
+    d = "{dof}"
+    l ="{"+ str(nData)+"-" +str(nFreeParams)	+"}"
+    result = round(chisq/(nData-nFreeParams),2)
+    print(f"\\chi^2/\\text{d} &= \\frac{{{round(chisq,2)}}}{l}= {result}")
+    print("\\end{align*}")
+
+#print_alling_xml_information('./Data/out.xml')
+#print_chisq('./Data/out.xml')
+#create_matrix_correlator('./Data/out.xml')

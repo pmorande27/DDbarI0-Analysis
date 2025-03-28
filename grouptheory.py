@@ -92,6 +92,79 @@ def identify_ni_at_rest_levels_subduction(name1,name2):
     return irreps
 
 #print(identify_ni_at_rest_levels_subduction('\psi','w'))
+def J_in_irrep_rest():
+    dic = {}
+    filename = 'GroupTheory/O_D^h.txt'
+    with open(filename) as file:
+        for i,line in enumerate(file):
+            if i == 0:
+                continue
+            data = line.split()
+            irrep_name = data[0]
+            parity = irrep_name.split('^')[1]
+            Js =[str((float(j)))+parity for j in data[1:]]
+            dic[irrep_name] = Js
+    return dic
+def helicities_in_irrep_D4():
+    dic = {}
+    filename = 'GroupTheory/Dic_4.txt'
+    with open(filename) as file:
+        for i,line in enumerate(file):
+            if i == 0:
+                continue
+            data = line.split()
+            irrep_name = data[0]
+            Js =[str((j)) for j in data[1:]]
+            dic[irrep_name] = Js
+    return dic
+def Js_in_irrep_D4(Jmax):
+    helicities_in_irrep = helicities_in_irrep_D4()
+    dic = {}
+    for key in helicities_in_irrep.keys():
+        Js = []
+        for j in helicities_in_irrep[key]:
+            if j == '0+':
+                for k in range(0,Jmax+1):
+                    par_plus = "+"
+                    par_minus = "-"
+                    plus = str(float(k))+par_plus
+                    minus = str(float(k))+par_minus
+                    eta_p = 1*(-1)**int(k)
+                    eta_m = -1*(-1)**int(k)
+                    if eta_p == 1:
+                        if plus not in Js:
+                            Js.append(plus)
+                    if eta_m == 1:
+                        if minus not in Js:
+                            Js.append(minus)
+
+
+            elif j == '0-':
+                for k in range(0,Jmax+1):
+                    par_plus = "+"
+                    par_minus = "-"
+                    plus = str(float(k))+par_plus
+                    minus = str(float(k))+par_minus
+                    eta_p = 1*(-1)**int(k)
+                    eta_m = -1*(-1)**int(k)
+                    if eta_p == -1:
+                        if plus not in Js:
+                            Js.append(plus)
+                    if eta_m == -1:
+                        if minus not in Js:
+                            Js.append(minus)
+            else:
+                for k in range(int(j),Jmax+1):
+                    par_plus = "+"
+                    par_minus = "-"
+                    plus = str(float(k))+par_plus
+                    minus = str(float(k))+par_minus
+                    if plus not in Js:
+                        Js.append(plus)
+                    if minus not in Js:
+                        Js.append(minus)
+        dic[key] = Js
+    return dic
 def identify_irreps_particle_Dic4(name):
     all_particles = p.read_particles('Particles/particles_unfl.txt') + p.read_particles('Particles/charmonium.txt')+ p.read_particles('Particles/Ds.txt') 
     for particle in all_particles:
@@ -132,7 +205,7 @@ def subductions_Dic4():
     reversed_dict2 = {0:'A_1^+',1:'A_2^+',2:'E^+',3:'T_1^+',4:'T_2^+',5:'A_1^-',6:'A_2^-',7:'E^-',8:'T_1^-',9:'T_2^-'}
     table = [[0 for i in range(5)] for j in range(5)]
     table[0][0] = ['A_1^+','E^+','T_1^-']
-    table[0][1] = ['T1^+','E^-','A_1^-']
+    table[0][1] = ['T_1^+','E^-','A_1^-']
     table[0][2] = ['A_2^+','T_2^-','E^+']
     table[0][3] =['T2^+','E^-','A_2^-']
     table[0][4] = ['T_1^-','T_2^-','T_1^+','T_2^+']
