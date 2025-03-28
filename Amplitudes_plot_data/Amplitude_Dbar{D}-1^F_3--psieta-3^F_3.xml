@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<PlotControl>
+  <fit_minimum_filename>./fit/out.xml</fit_minimum_filename>
+  <plot>plot_rho_t_squared</plot>
+  <nbins>100</nbins>
+  <twoJ>6</twoJ>
+  <P>-1</P>
+  <Ecm_min>0.66</Ecm_min>
+  <Ecm_max>0.71</Ecm_max>
+  <npts>1000</npts>
+  <Channels>
+    <elem>
+      <hadron1>D</hadron1>
+      <hadron2>\bar{D}</hadron2>
+      <twoS>0</twoS>
+      <ell>3</ell>
+      <twoJ>6</twoJ>
+    </elem>
+    <elem>
+      <hadron1>\psi</hadron1>
+      <hadron2>\eta</hadron2>
+      <twoS>2</twoS>
+      <ell>3</ell>
+      <twoJ>6</twoJ>
+    </elem>
+  </Channels>
+</PlotControl>

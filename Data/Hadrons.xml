@@ -1,0 +1,163 @@
+<Hadrons>
+<elem>
+  <name>\eta_c</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.523</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\psi</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.537</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>h_c</name>
+  <twoS>2</twoS>
+  <parity>1</parity>
+  <mass>0.616</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\chi_{c0}</name>
+  <twoS>0</twoS>
+  <parity>1</parity>
+  <mass>0.6042</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\chi_{c1}</name>
+  <twoS>2</twoS>
+  <parity>1</parity>
+  <mass>0.614</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\chi_{c2}</name>
+  <twoS>4</twoS>
+  <parity>1</parity>
+  <mass>0.621</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\eta_{c}'</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.641</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\psi'</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.645</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>D</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.332</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\bar{D}</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.332</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>D^*</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.354</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\bar{D}^*</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.354</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>D_s</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.344</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\bar{D}_s</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.344</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>D^*_s</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.365</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\bar{D}^*_s</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.365</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\pi</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.069</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>K</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.096</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\eta</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.103</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\eta'</name>
+  <twoS>0</twoS>
+  <parity>-1</parity>
+  <mass>0.164</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\sigma</name>
+  <twoS>0</twoS>
+  <parity>1</parity>
+  <mass>0.132</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>w</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.155</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+<elem>
+  <name>\phi</name>
+  <twoS>2</twoS>
+  <parity>-1</parity>
+  <mass>0.179</mass>
+  <mass_err>0.0</mass_err>
+</elem>
+</Hadrons>

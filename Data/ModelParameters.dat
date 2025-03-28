@@ -1,0 +1,11 @@
+# Model Parameters
+# 1.0-
+n_poles 1
+poly_order 0
+chew_man true
+chew_man_sub_point pole0
+# 3.0-
+n_poles 1
+poly_order 0
+chew_man true
+chew_man_sub_point pole0

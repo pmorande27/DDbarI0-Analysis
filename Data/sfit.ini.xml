@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<FitIniParams>
+
+  <version>2</version>
+
+  <inputProps>
+    <dbInputType>redstarSUN</dbInputType> <!-- redstar, redstarSUN, ... -->
+    <dbFnames><elem>../../edb/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per.n64.DDbar_I0.T1mM.p000.4tsrc.corr0.59ops.478cfgs.edb</elem></dbFnames>
+    <opsListFname>ops.list</opsListFname>
+    <opsXMLFiles>
+      <elem>../ops/ops.DDbar_I0.GparM.xml</elem>
+      <elem>../ops/ops.single_cebar_rest.xml</elem>
+    </opsXMLFiles>
+    <rephaseMode>real</rephaseMode>
+
+    <KeyParams>
+      <irmom>
+        <row>1</row>
+        <mom>0 0 0</mom>
+      </irmom>
+      <twoI_z>0</twoI_z>
+      <flavor>
+        <twoI>0</twoI>
+        <threeY>0</threeY>
+        <twoI_z>0</twoI_z>
+      </flavor>
+      <source_tslice>-2</source_tslice>
+      <ensemble>szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per</ensemble>
+    </KeyParams>
+
+  </inputProps>
+
+
+  <sortingProps>
+    <sortEvecsCfg>Refvecs</sortEvecsCfg>
+    <sortEvecsTimeslice>Refvecs_Fixed_Auto</sortEvecsTimeslice>
+    <deltatRef>1</deltatRef>
+  </sortingProps>
+  
+  <genEigProps>
+     <type>SvdSigma</type>
+     <thresh>1e12</thresh>
+     <sigma>3</sigma>
+     <svdHisto>true</svdHisto>
+     <nHistoBins>20</nHistoBins>
+  </genEigProps>
+
+  <prinCorrProps>
+    <noiseCutoff>0.07</noiseCutoff>
+    <tmax>39</tmax>
+    <minTSlices>13</minTSlices>
+    <fitCrit>generic</fitCrit>
+    <accChisq>3.0</accChisq>
+  </prinCorrProps>
+
+  <zProps>
+    <fit>true</fit>
+    <tmax>39</tmax>
+    <minTSlices>13</minTSlices>
+    <fitCrit>Zfit</fitCrit>
+    <accChisq>3.0</accChisq>
+  </zProps>
+
+  <t0FitProps>
+    <MT0>true</MT0>
+    <ZT0>true</ZT0>
+    <fitCrit>chisq_per_dof</fitCrit>
+    <accChisq>3.0</accChisq>
+  </t0FitProps>
+
+  <t0Props>
+    <t0low>8</t0low>
+    <t0high>12</t0high>
+    <t0ref>9</t0ref>
+    <nThreads>6</nThreads>
+  </t0Props>
+
+  <reconProps>
+    <recon>true</recon>
+    <type>fast</type>
+    <tmax>39</tmax>
+    <selectT0>cutoff</selectT0> 
+    <accChisq>5.0</accChisq>
+  </reconProps>
+  
+  <outputProps>
+    <mass>true</mass>
+    <Z_t>true</Z_t>
+    <V_t>false</V_t>
+    <pcorrFiles>true</pcorrFiles>
+    <zFitFiles>true</zFitFiles>
+   
+    <pcorrPlots>true</pcorrPlots>
+    <zFitPlots>true</zFitPlots>
+    
+    <mT0Files>true</mT0Files>
+    <zT0Files>true</zT0Files>
+
+    <mT0Plots>true</mT0Plots>
+    <zT0Plots>true</zT0Plots>
+
+    <reconPlots>true</reconPlots>       
+    <reconType>diag</reconType>
+    <logs>true</logs>
+  </outputProps>
+
+  <fixedCoeffProps>
+    <fixed>false</fixed>
+    <tstar>10</tstar>
+  </fixedCoeffProps>
+
+  <globalProps>
+    <tmin>1</tmin>
+    <tmax>39</tmax>
+    <SVcutoff>1e-6</SVcutoff>
+    <verbose>true</verbose>
+  </globalProps>
+
+</FitIniParams>
+

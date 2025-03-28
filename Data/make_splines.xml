@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<MakeSplines>
+   <control>
+       <Ecm_max>0.71</Ecm_max>
+       <n_points>200</n_points>
+       <nsq_exp>50</nsq_exp>
+       <nsq_int>50</nsq_int>
+   </control>
+   <lattices>
+       <xi>3.444</xi>
+       <Ls>16 20 24</Ls>
+   </lattices>
+   <hadron_pairs>
+       <elem>
+           <hadron1>\psi</hadron1>
+           <hadron2>\eta</hadron2>
+           <ell_max>4</ell_max>
+           <ds>000</ds>
+       </elem>
+       <elem>
+           <hadron1>D</hadron1>
+           <hadron2>\bar{D}</hadron2>
+           <ell_max>4</ell_max>
+           <ds>000</ds>
+       </elem>
+   </hadron_pairs>
+</MakeSplines>
