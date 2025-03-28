@@ -287,7 +287,7 @@ class Spectrum(object):
     states, operators and the mass of the states. The class will also contain methods to plot the correlators and the
     histogram of the states.
     """
-    def __init__(self,volume,t0,irrep,create_files = False,saveAllPlots = False,saveHistPlots = False):
+    def __init__(self,volume,t0,irrep,create_files = False,saveAllPlots = False,saveHistPlots = False, pathData = "",pathOps = ""):
         """
         Constructor for the Spectrum class. The constructor will create the necessary files if create_files is True.
         The constructor will also save all the plots if saveAllPlots is True and will save the histogram plots if
@@ -309,7 +309,22 @@ class Spectrum(object):
         self.states = []
         self.operators = []
         self.skips = []
-        self.path_home = f"{irrep}\\Volume_{volume}\\t0{t0}"
+        self.create_files = create_files
+        if pathOps == "":
+            self.pathOps = f"{irrep}/Volume_{volume}/ops.txt"
+        else:
+            self.pathOps = pathOps
+            path_aux = f"{irrep}/Volume_{volume}/ops.txt"
+            with open(self.pathOps, "r") as f:
+                with open(path_aux, "w") as f2:
+                    lines = f.readlines()
+                    for operator in lines:
+                        f2.write(operator)
+        if pathData == "":
+            self.pathData = f"{irrep}/Volume_{volume}/t0{t0}"
+        else:
+            self.pathData = pathData
+        self.path_home = f"{irrep}/Volume_{volume}/t0{t0}"
         states = self.get_states()
         self.operators = self.get_operators()
         self.states = max(states)+1
@@ -340,7 +355,7 @@ class Spectrum(object):
         directory {irrep}/Volume_{volume}/ops.txt
         :return: The number of operators used to extract the spectrum
         """
-        path = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+        path = self.pathOps
         with open(path, "r") as f:
             line = f.readlines()
             operators = len(line)
@@ -351,8 +366,12 @@ class Spectrum(object):
         Function used to get the states (numbered) from the files in MassJackFiles
         :return: A list of the states present in the files in MassJackFiles
         """
+
         ## Get the states from the files in MassJackFiles
-        path = f"{self.path_home}\\MassJackFiles"
+        if self.create_files:
+            path = f"{self.pathData}/MassJackFiles"
+        else:
+            path =  f"{self.pathData}/Massvalues"
         files = os.listdir(path)
         states = []
         for file in files:
@@ -417,8 +436,9 @@ class Spectrum(object):
         names = self.create_names()
 
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZJackFiles\\{name}"
-            path2 = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\Zvalues\\{name}"
+
+            path = f"{self.pathData}/ZJackFiles/{name}"
+            path2 = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Zvalues/{name}"
             with open(path2, "w") as f:
                 f.write(f"{abs(calc(path)[0])} {calc(path)[1]}")
 
@@ -434,7 +454,7 @@ class Spectrum(object):
         values = np.zeros(len(names))
         errors = np.zeros(len(names))
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\Zvalues\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Zvalues/{name}"
             a = np.loadtxt(path)
             val,err = a[0],a[1]
             values[names.index(name)] = val
@@ -445,7 +465,7 @@ class Spectrum(object):
             errors[i] = errors[i]/maximum
         
         for i,name in enumerate(names):
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZvaluesRenormalized/{name}"
             with open(path, "w") as f:
                 f.write(f"{values[i]} {errors[i]}")
 
@@ -458,12 +478,12 @@ class Spectrum(object):
         :param state: The state for which the histogram is to be plotted
         :param save: A boolean that determines if the histogram plot should be saved
         """
-        file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+        file = self.pathOps
         names = self.create_names_states(state)
         values = np.zeros(len(names))
         errors = np.zeros(len(names))
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZvaluesRenormalized/{name}"
             a = np.loadtxt(path)
             val,err = a[0],a[1]
             values[names.index(name)] = val
@@ -481,7 +501,7 @@ class Spectrum(object):
         fig,ax = plt.subplots()
         ax.bar(x,values,yerr=errors,color=colors,label=labels)
         name2 =  f"mass_t0_{self.t0}_reorder_state{state}.jack"
-        v = np.loadtxt(f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name2}")
+        v = np.loadtxt(f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name2}")
         value,error = round(v[0],3),round(v[1],3)
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -494,7 +514,7 @@ class Spectrum(object):
             plt.show()
         else:
             name = f"histogram_state{state}.pdf"
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\HistogramPlots\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/HistogramPlots/{name}"
             plt.savefig(path)
             plt.close()
     def plot_histogram_state_axis(self,state,axis):
@@ -506,12 +526,12 @@ class Spectrum(object):
         :param state: The state for which the histogram is to be plotted
         :param save: A boolean that determines if the histogram plot should be saved
         """
-        file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+        file = self.pathOps
         names = self.create_names_states(state)
         values = np.zeros(len(names))
         errors = np.zeros(len(names))
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZvaluesRenormalized/{name}"
             a = np.loadtxt(path)
             val,err = a[0],a[1]
             values[names.index(name)] = val
@@ -529,7 +549,7 @@ class Spectrum(object):
         x = np.arange(len(x))
         axis.barh(x,values,yerr=errors,color=colors,label=labels)
         name2 =  f"mass_t0_{self.t0}_reorder_state{state}.jack"
-        v = np.loadtxt(f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name2}")
+        v = np.loadtxt(f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name2}")
         value,error = round(v[0],3),round(v[1],3)
         #axis.spines['right'].set_visible(False)
         #axis.spines['top'].set_visible(False)
@@ -553,9 +573,9 @@ class Spectrum(object):
         if state in self.skips or state >= self.states:
             raise ValueError("State not found")
         name = f"prin_corr_fit_t0{self.t0}_reorder_state{state}.ax"
-        path =  f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\PrinCorrPlots\\{name}"
+        path =  f"{self.pathData}/PrinCorrPlots/{name}"
         name = f"prin_corr_fit_t0{self.t0}_reorder_state{state}.pdf"
-        save_path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\CorrPlots\\{name}"
+        save_path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/CorrPlots/{name}"
         ## Check if file empty
         if os.stat(path).st_size == 0:
             return 
@@ -579,8 +599,8 @@ class Spectrum(object):
         #print(names)
         mass = []
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassJackFiles\\{name}"
-            path2 = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name}"
+            path = f"{self.pathData}/MassJackFiles/{name}"
+            path2 = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name}"
             with open(path2, "w") as f:
                 f.write(f"{abs(calc(path)[0])} {calc(path)[1]}")
 
@@ -590,7 +610,7 @@ class Spectrum(object):
         masses = []
         errors = []
         for name in names:
-            path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name}"
             a = np.loadtxt(path)
             val,err = a[0],a[1]
             masses.append(val)
@@ -785,7 +805,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -968,7 +988,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1152,7 +1172,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1202,7 +1222,7 @@ class Spectrum(object):
         title.text(10,1.1,f'{irrep} $L/a_s$ = {self.volume}',fontsize=12)
         
         title.axis('off')
-        file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+        file =self.pathOps
       
      
         x = [f"op{i}" for i in range(self.operators)]
@@ -1225,7 +1245,7 @@ class Spectrum(object):
         for i in range(9):
             state = included[i]
             name = f"prin_corr_fit_t0{self.t0}_reorder_state{state}.ax"
-            path =  f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\PrinCorrPlots\\{name}"
+            path =  f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/PrinCorrPlots/{name}"
             ax = axes[(i+3)//3,i%3]
             plot_ax_file_in_fig(self,path,ax,state)
 
@@ -1422,7 +1442,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1647,7 +1667,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1679,7 +1699,7 @@ class Spectrum(object):
         dcol = color_coding_file_simple()
         for i in range(self.states):
             if i not in self.skips:
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{i}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{i}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1694,12 +1714,12 @@ class Spectrum(object):
         for i,state in enumerate(levels):
             if i != level:
                 continue
-            file = f"{self.irrep}\\Volume_{self.volume}\\ops.txt"
+            file = self.pathOps
             names = self.create_names_states(state)
             values = np.zeros(len(names))
             errors = np.zeros(len(names))
             for name in names:
-                path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\{name}"
+                path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZvaluesRenormalized/{name}"
                 a = np.loadtxt(path)
                 val,err = a[0],a[1]
                 values[names.index(name)] = val
@@ -1737,7 +1757,7 @@ class Spectrum(object):
 
             ax.bar(xnew,val_trues,yerr=errs_trues,color=new_colors,label=xnew)
             name2 =  f"mass_t0_{self.t0}_reorder_state{state}.jack"
-            v = np.loadtxt(f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\MassValues\\{name2}")
+            v = np.loadtxt(f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name2}")
             value,error = round(v[0],3),round(v[1],3)
             ax.spines['right'].set_visible(False)
             ax.spines['top'].set_visible(False)
@@ -1802,7 +1822,7 @@ class Spectrum(object):
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -1823,7 +1843,7 @@ class Spectrum(object):
         color_to_num = {}
         for key in num_to_color.keys():
             color_to_num[num_to_color[key]] = key
-        new_dict,color_code_dict_new = color_coding_file(f"{self.irrep}\\Volume_{self.volume}\\ops.txt")
+        new_dict,color_code_dict_new = color_coding_file(self.pathOps)
         dict_color_ops = {}
         for op in new_dict.keys():
             dict_color_ops[op] = color_code_dict_new[new_dict[op]]
@@ -1835,7 +1855,7 @@ class Spectrum(object):
                 Z_renormalized = []
                 Z_renormalized_err = []
                 for operator in range(self.operators):
-                    path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\ZvaluesRenormalized\\Z_t0_{self.t0}_reorder_state{state}_op{operator}.jack"
+                    path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZvaluesRenormalized/Z_t0_{self.t0}_reorder_state{state}_op{operator}.jack"
                     a = np.loadtxt(path)
                     val,err = a[0],a[1]
                     Z_renormalized.append(val)
@@ -1880,7 +1900,7 @@ class Spectrum(object):
                     else:
 
                     
-                        path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\Annotations\\Colorstate{state}.txt"
+                        path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Annotations/Colorstate{state}.txt"
                         with open(path, "w") as f:
                             #print("Not possible to automatically decide color, possible options are: \n")
                             #print(str(possible_initial_sweep),state)
@@ -1902,7 +1922,7 @@ class Spectrum(object):
                     save_color_code_state(color_to_num[possible[0][0]],state,self)
                     continue
                 else:
-                    path = f"{self.irrep}\\Volume_{self.volume}\\t0{self.t0}\\Annotations\\Colorstate{state}.txt"
+                    path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Annotations/Colorstate{state}.txt"
                     with open(path, "w") as f:
                         f.write("Not possible to automatically decide color, possible options are: \n")
                         f.write(str(possible))
@@ -2218,31 +2238,31 @@ def bias_analysis_load_and_create_plots(irrep_name,V,tmaxs,t0min,t0max):
 def create_structure(volume,t0s,irrep):
     if not os.path.exists(irrep):
         os.mkdir(irrep)
-    if not os.path.exists(f"{irrep}\\Volume_{volume}"):
-        os.mkdir(f"{irrep}\\Volume_{volume}")
+    if not os.path.exists(f"{irrep}/Volume_{volume}"):
+        os.mkdir(f"{irrep}/Volume_{volume}")
     for t0 in t0s:
-        path2 = f"{irrep}\\Volume_{volume}\\t0{t0}"
+        path2 = f"{irrep}/Volume_{volume}/t0{t0}"
         if not os.path.exists(path2):
             os.mkdir(path2)
-        path3 = f"{irrep}\\Volume_{volume}\\t0{t0}\\StateColorFiles"
+        path3 = f"{irrep}/Volume_{volume}/t0{t0}/StateColorFiles"
         if not os.path.exists(path3):
             os.mkdir(path3)
-        path4 = f"{irrep}\\Volume_{volume}\\t0{t0}\\ZValues"
+        path4 = f"{irrep}/Volume_{volume}/t0{t0}/ZValues"
         if not os.path.exists(path4):
             os.mkdir(path4)
-        path5 = f"{irrep}\\Volume_{volume}\\t0{t0}\\ZvaluesRenormalized"
+        path5 = f"{irrep}/Volume_{volume}/t0{t0}/ZvaluesRenormalized"
         if not os.path.exists(path5):
             os.mkdir(path5)
-        path6 = f"{irrep}\\Volume_{volume}\\t0{t0}\\MassValues"
+        path6 = f"{irrep}/Volume_{volume}/t0{t0}/MassValues"
         if not os.path.exists(path6):
             os.mkdir(path6) 
-        path8 = f"{irrep}\\Volume_{volume}\\t0{t0}\\CorrPlots"
+        path8 = f"{irrep}/Volume_{volume}/t0{t0}/CorrPlots"
         if not os.path.exists(path8):
             os.mkdir(path8)
-        path9 = f"{irrep}\\Volume_{volume}\\t0{t0}\\Annotations"
+        path9 = f"{irrep}/Volume_{volume}/t0{t0}/Annotations"
         if not os.path.exists(path9):
             os.mkdir(path9)
-        path10 = f"{irrep}\\Volume_{volume}\\t0{t0}\\HistogramPlots"
+        path10 = f"{irrep}/Volume_{volume}/t0{t0}/HistogramPlots"
         if not os.path.exists(path10):
             os.mkdir(path10)
 #[create_structure(i,[8,9,10,11,12],"T1mM-fewer-djw-tmax30") for i in [24,16,20]]
@@ -2267,7 +2287,7 @@ def bias_analysis_level_matching(irrep_name,V,tmaxs,t0min,t0max,ncolor,tmax_ref,
     for state in range(max_state):
         mass = masses_ref[state]
         name = names_ref[state]
-        path = f"{irrep}\\Volume_{V}\\t0{t0_ref}\\StateColorFiles\\state{name}.txt"
+        path = f"{irrep}/Volume_{V}/t0{t0_ref}/StateColorFiles/state{name}.txt"
         if os.path.exists(path):
                     with open(path) as f:
                         lines = f.readlines()
@@ -2282,7 +2302,7 @@ def bias_analysis_level_matching(irrep_name,V,tmaxs,t0min,t0max,ncolor,tmax_ref,
                     names.remove(skip)
             index = np.abs(masses - mass).argmin()  # Find the index of the closest value
             
-            path_closest_state = f"{irrep}\\Volume_{V}\\t0{spectrum.t0}\\StateColorFiles\\state{names[index]}.txt"
+            path_closest_state = f"{irrep}/Volume_{V}/t0{spectrum.t0}/StateColorFiles/state{names[index]}.txt"
             if os.path.exists(path_closest_state):
                     with open(path_closest_state) as f:
                         lines = f.readlines()
@@ -2293,7 +2313,7 @@ def bias_analysis_level_matching(irrep_name,V,tmaxs,t0min,t0max,ncolor,tmax_ref,
                 tolerable = []
                 indices = []
                 for j,difference in enumerate(differences):
-                    path_closest_state_new = f"{irrep}\\Volume_{V}\\t0{spectrum.t0}\\StateColorFiles\\state{names[j]}.txt"
+                    path_closest_state_new = f"{irrep}/Volume_{V}/t0{spectrum.t0}/StateColorFiles/state{names[j]}.txt"
                     if os.path.exists(path_closest_state_new):
                         with open(path_closest_state_new) as f:
                             lines = f.readlines()
@@ -2349,7 +2369,7 @@ def plot_level_bias_analysis(irrep_name,V,tmaxs,t0min,t0max,ncolor,tmax_ref,t0_r
         #ax.text(x,mass,name,fontsize = 8)
     irrep = irrep_name + f"_tmax_{tmax_ref}"
 
-    path = f"{irrep}\\Volume_{V}\\t0{t0_ref}\\StateColorFiles\\state{level_of_interest}.txt"
+    path = f"{irrep}/Volume_{V}/t0{t0_ref}/StateColorFiles/state{level_of_interest}.txt"
     if os.path.exists(path):
                 with open(path) as f:
                     lines = f.readlines()
@@ -2401,7 +2421,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
         mass = masses_ref[state]
         err = err_ref[state]
         name = names_ref[state]
-        path = f"{irrep_ref}\\Volume_{V}\\t0{t0_ref}\\StateColorFiles\\state{name}.txt"
+        path = f"{irrep_ref}/Volume_{V}/t0{t0_ref}/StateColorFiles/state{name}.txt"
         if os.path.exists(path):
                     with open(path) as f:
                         lines = f.readlines()
@@ -2419,7 +2439,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
                     names.remove(skip)
             index = np.abs(masses - mass).argmin()  # Find the index of the closest value
             
-            path_closest_state = f"{irrep}\\Volume_{V}\\t0{spectrum.t0}\\StateColorFiles\\state{names[index]}.txt"
+            path_closest_state = f"{irrep}/Volume_{V}/t0{spectrum.t0}/StateColorFiles/state{names[index]}.txt"
             if os.path.exists(path_closest_state):
                     with open(path_closest_state) as f:
                         lines = f.readlines()
@@ -2435,7 +2455,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
                 indices = []
                 colors = []
                 for j,difference in enumerate(differences):
-                    path_closest_state_new = f"{irrep}\\Volume_{V}\\t0{spectrum.t0}\\StateColorFiles\\state{names[j]}.txt"
+                    path_closest_state_new = f"{irrep}/Volume_{V}/t0{spectrum.t0}/StateColorFiles/state{names[j]}.txt"
                     if os.path.exists(path_closest_state_new):
                         with open(path_closest_state_new) as f:
                             lines = f.readlines()
@@ -2454,7 +2474,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
                     #print(f"State {state} has no close state in {tag}")
                     for j,difference in enumerate(differences):
                         
-                        path_closest_state_new = f"{irrep}\\Volume_{V}\\t0{spectrum.t0}\\StateColorFiles\\state{names[j]}.txt"
+                        path_closest_state_new = f"{irrep}/Volume_{V}/t0{spectrum.t0}/StateColorFiles/state{names[j]}.txt"
                         if os.path.exists(path_closest_state_new):
                             with open(path_closest_state_new) as f:
                                 lines = f.readlines()
@@ -2523,7 +2543,7 @@ def plot_level_bias_analysis_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0max,
         #ax.text(x,mass,name,fontsize = 8)
     irrep = irrep_ref
 
-    path = f"{irrep}\\Volume_{V}\\t0{t0_ref}\\StateColorFiles\\state{level_of_interest}.txt"
+    path = f"{irrep}/Volume_{V}/t0{t0_ref}/StateColorFiles/state{level_of_interest}.txt"
     if os.path.exists(path):
                 with open(path) as f:
                     lines = f.readlines()

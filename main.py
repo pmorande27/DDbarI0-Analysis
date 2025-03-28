@@ -124,9 +124,7 @@ def preliminary_analysis_T1mM_nosigma_improved():
     """
 def preliminary_analysis_T1mM_nosigma_reduced():
     irrep = "T1mM-nosigma-reduced"
-    create_structure(24,[8,9,10,11,12,13],irrep)
-    create_structure(16,[8,9,10,11,12],irrep)
-    create_structure(20,[8,9,10,11,12,13],irrep)
+    fig,ax = plt.subplots()
     figures_save, create_files,save_hist = False,False,False
     spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist)
     spectrumV20 = spectrum_analysis.Spectrum(20,10,irrep,create_files,figures_save,save_hist)
@@ -140,10 +138,21 @@ def preliminary_analysis_T1mM_nosigma_reduced():
     Ls = np.linspace(14,26)
     channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
     spectra = [spectrumV16,spectrumV24,spectrumV20]
-    included = [[1,2,3,4,6],[1,2,3,5,4,11,6,8],[1,2,3,4,13,7,8]]
+    included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
+    #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.74)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included)
+    #fig,axis = plt.subplots()
+    
+    #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
+    name = f"prin_corr_fit_t0{spectrumV16.t0}_reorder_state{0}.ax"
+    path =  f"{spectrumV16.irrep}\\Volume_{spectrumV16.volume}\\t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
+    #spectrum_analysis.plot_ax_file_in_fig(spectrumV16,path,axis,state=0)
+
+    ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/levels_T1mM",ax)
+    plt.show()
     #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.74)
     #fig,axis = plt.subplots()
-    ps.plot_irrep_mass(spectra,"T1mM",Ls,"000",19,channel,0.75,)
+    #ps.plot_irrep_mass(spectra,"T1mM",Ls,"000",19,channel,0.75)
     #
     
     #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
@@ -353,14 +362,22 @@ def preliminary_analysis_T1pM_nosigma_reduced():
     """
 def preliminary_analysis_A2mM_nosigma_reduced():
     irrep = "A2mM-nosigma-reduced"
+    volumes = [24,20,16]
+    t0s = [14,14,12]
+    PathDatas = []
+    PathsOpss = []
+    for i in range(3):
+        PathDatas.append(f"../A2mM-nosigma-reduced/Volume_{volumes[i]}/t0{t0s[i]}")
+        PathsOpss.append(f"../A2mM-nosigma-reduced/Volume_{volumes[i]}/ops.txt")
+
     create_structure(24,[8,9,10,11,12,13,14],irrep)
     create_structure(16,[8,9,10,11,12],irrep)
     create_structure(20,[8,9,10,11,12,13,14,15],irrep)
-    figures_save, create_files,save_hist = False,False,False
+    figures_save, create_files,save_hist = True,True,True
     #spectrumV24 = spectrum_analysis.Spectrum(24,13,irrep,create_files,figures_save,save_hist)
-    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist)
-    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist)
-    spectrumV24 = spectrum_analysis.Spectrum(24,14,irrep,create_files,figures_save,save_hist)
+    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist,PathDatas[1],PathsOpss[1])
+    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist,PathDatas[2],PathsOpss[2])
+    spectrumV24 = spectrum_analysis.Spectrum(24,14,irrep,create_files,figures_save,save_hist,PathDatas[0],PathsOpss[0])
 
     
     spectrumV20.automatic_coloring(8)
@@ -753,12 +770,12 @@ import Set_Up_Functions as SUF
 def main():
     #xml_functions.create_hadron_xml("./Data/Hadrons.xml","./Data/Hadrons.dat")
     #create_E_file_no_sigma_fewer()
-    fig,ax = plt.subplots()
+    #rig,ax = plt.subplots()
     #ps.plot_elastic_phase_shift_discrete("./Data/discrete.data",ax)
-    labels = ["$D\\bar{D}\\to D\\bar{D}$"]
-    paths = ['Amplitudes_plot_data/phase_shift.dat']
+    #labels = ["$D\\bar{D}\\to D\\bar{D}$"]
+    #paths = ['Amplitudes_plot_data/phase_shift.dat']
     #pa.plot_amplitudes_phase_shift(paths,labels,1,-1,ax)
-    ax.set_xlim(0.64,0.73)
+    #ax.set_xlim(0.64,0.73)
     #plt.show()
     #spectrum_analysis.bias_analysis_create_structure("T1mM-nosigma-reduced",20,[25,26,27,28,29,30],10,14)
     #spectrum_analysis.bias_analysis_load_and_create_plots("T1mM-nosigma-improved",20,[27,28,29],10,14)
@@ -767,9 +784,10 @@ def main():
     #spectrum_analysis.Spectrum(20,10,"T1mM-nosigma-improved_tmax_30",False,False,False).automatic_coloring(16)
     #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("T1mM-nosigma-reduced",["T1mM-nosigma-reduced","T1mM-nosigma-improved"],20,[27,28,29,30],10,11,30,10,30,[1,2,3,13,15,6,7,8,9],markers)
     #plt.show()
-    preliminary_analysis_T1mM_A2mM_A1()
+    #preliminary_analysis_T1mM_A2mM_A1()
     #preliminary_analysis_T1mM_nosigma_reduced()
     #preliminary_analysis_T1mM()
+    preliminary_analysis_A2mM_nosigma_reduced()
     #preliminar_analysis_T1mM_fewer_pm()
     #preliminary_analysis_D4A1M_nosigma_2()
     #preliminary_analysis_T1mM_nosigma_reduced_3()
