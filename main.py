@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import plot_spectrum as ps
 import plot_amplitudes as pa
 def preliminary_analysis_T1mM_A2mM_A1():
-    irrep = "A2mM-nosigma-reduced"
+    irrep = "p000-A2mM-nosigma-reduced"
     create_structure(24,[8,9,10,11,12,13,14],irrep)
     create_structure(16,[8,9,10,11,12],irrep)
     create_structure(20,[8,9,10,11,12,13,14,15],irrep)
@@ -36,7 +36,7 @@ def preliminary_analysis_T1mM_A2mM_A1():
 
     ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"A2mM",Ls,"000",7,channel,0.78,"./Data/levels_A2mM",ax[0])
     #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"A2mM",Ls,"000",7,channel,0.78,included,ax[0])
-    irrep = "T1mM-nosigma-reduced"
+    irrep = "p000-T1mM-nosigma-reduced"
     create_structure(24,[8,9,10,11,12,13],irrep)
     create_structure(16,[8,9,10,11,12],irrep)
     create_structure(20,[8,9,10,11,12,13],irrep)
@@ -62,12 +62,12 @@ def preliminary_analysis_T1mM_A2mM_A1():
     
     #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
     name = f"prin_corr_fit_t0{spectrumV16.t0}_reorder_state{0}.ax"
-    path =  f"{spectrumV16.irrep}\\Volume_{spectrumV16.volume}\\t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
+    path =  f"{spectrumV16.irrep}/Volume_{spectrumV16.volume}/t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
     #spectrum_analysis.plot_ax_file_in_fig(spectrumV16,path,axis,state=0)
-    ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",30,channel,0.75,"./Data/levels_T1mM",ax[1])
+    ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/levels_T1mM",ax[1])
     #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.75,included,ax[1])
 
-    irrep = "D4A1M-nosigma"
+    irrep = "p100-D4A1M-nosigma"
     create_structure(24,[8,9,10,11,12,13,14,15,16],irrep)
     create_structure(16,[8,9,10,11,12,13,14,15],irrep)
     create_structure(20,[8,9,10,11,12,13,14,15,16],irrep)
@@ -122,14 +122,40 @@ def preliminary_analysis_T1mM_nosigma_improved():
     """
 
     """
+
 def preliminary_analysis_T1mM_nosigma_reduced():
-    irrep = "T1mM-nosigma-reduced"
-    fig,ax = plt.subplots()
+    irrep = "p000-T1mM-nosigma-reduced"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 10
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 12
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 12
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
+
+
+
+
+
+    #fig,ax = plt.subplots()
+    create_structure(16,[10,11,12,13,14],irrep)
+    create_structure(20,[10,11,12,13,14],irrep)
+    create_structure(24,[10,11,12,13,14],irrep)
+
     figures_save, create_files,save_hist = False,False,False
-    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist)
-    spectrumV20 = spectrum_analysis.Spectrum(20,10,irrep,create_files,figures_save,save_hist)
+    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,10,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
     #spectrumV24 = spectrum_analysis.Spectrum(24,9,irrep,create_files,figures_save,save_hist)
-    spectrumV24 = spectrum_analysis.Spectrum(24,12,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,12,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
 
     
     #spectrumV20.automatic_coloring(30)
@@ -139,8 +165,9 @@ def preliminary_analysis_T1mM_nosigma_reduced():
     channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
     spectra = [spectrumV16,spectrumV24,spectrumV20]
     included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
-    #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.74)
-    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included)
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",19,channel,0.74)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included,ax)
+
     #fig,axis = plt.subplots()
     
     #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
@@ -148,8 +175,8 @@ def preliminary_analysis_T1mM_nosigma_reduced():
     path =  f"{spectrumV16.irrep}\\Volume_{spectrumV16.volume}\\t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
     #spectrum_analysis.plot_ax_file_in_fig(spectrumV16,path,axis,state=0)
 
-    ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/levels_T1mM",ax)
-    plt.show()
+    #ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/levels_T1mM",ax)
+    #plt.show()
     #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.74)
     #fig,axis = plt.subplots()
     #ps.plot_irrep_mass(spectra,"T1mM",Ls,"000",19,channel,0.75)
@@ -224,16 +251,33 @@ def preliminary_analysis_D4A1M():
     #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included)
     #spectrum_analysis.Spectrum.plot_irrep_mass_with_get_finite(spectra,"T1mM",Ls,"000",19,channel,0.73,"./Data/output_d000_T1m.spectrum")
 def preliminary_analysis_D4A1M_nosigma():
-    irrep = "D4A1M-nosigma"
+    irrep = "p100-D4A1M-nosigma"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 14
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/orthog.list"
+
+    V24_t0 = 12
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 14
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/orthog.list"
+
     create_structure(24,[8,9,10,11,12,13,14,15,16],irrep)
     create_structure(16,[8,9,10,11,12,13,14,15],irrep)
     create_structure(20,[8,9,10,11,12,13,14,15,16],irrep)
-    figures_save, create_files,save_hist = False,False,False
-    spectrumV16 = spectrum_analysis.Spectrum(16,14,irrep,create_files,figures_save,save_hist)
-    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist)
+    figures_save, create_files,save_hist = True,True,True
+    spectrumV16 = spectrum_analysis.Spectrum(16,14,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
     #spectrumV16.plot_histogram_of_levels_of_color('green',2)
   
-    spectrumV24 = spectrum_analysis.Spectrum(24,12,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,12,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
 
     #spectrumV20.plot_nine_levels([0,1,2,3,4,5,6,7,8,9],"$A_1^{-} [100]$")
     #spectrumV20.automatic_coloring(30)
@@ -244,7 +288,7 @@ def preliminary_analysis_D4A1M_nosigma():
     spectra = [spectrumV16,spectrumV20,spectrumV24]
     included = [[1,2,3,4,13,7,8]]
     #spectrum_analysis.Spectrum.plot_irrep_mass(spectra,"A1M",Ls,"100",20,channel,0.74)
-    spectrum_analysis.Spectrum.plot_irrep_mass_with_get_finite(spectra,"A1M",Ls,"100",19,channel,0.72,"./Data/output_d001_A1.spectrum")
+    #spectrum_analysis.Spectrum.plot_irrep_mass_with_get_finite(spectra,"A1M",Ls,"100",19,channel,0.72,"./Data/output_d001_A1.spectrum")
     #spectrum_analysis.Spectrum.plot_irrep_mass_with_get_finite(spectra,"T1mM",Ls,"000",19,channel,0.73,"./Data/output_d000_T1m.spectrum")
 def preliminary_analysis_D4A1M_nosigma_2():
     irrep = "D4A1M-nosigma-2"
@@ -361,28 +405,44 @@ def preliminary_analysis_T1pM_nosigma_reduced():
 
     """
 def preliminary_analysis_A2mM_nosigma_reduced():
-    irrep = "A2mM-nosigma-reduced"
+    
     volumes = [24,20,16]
     t0s = [14,14,12]
-    PathDatas = []
-    PathsOpss = []
-    for i in range(3):
-        PathDatas.append(f"../A2mM-nosigma-reduced/Volume_{volumes[i]}/t0{t0s[i]}")
-        PathsOpss.append(f"../A2mM-nosigma-reduced/Volume_{volumes[i]}/ops.txt")
+    irrep = "p000-A2mM-nosigma-reduced"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 14
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 14
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 12
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
 
     create_structure(24,[8,9,10,11,12,13,14],irrep)
     create_structure(16,[8,9,10,11,12],irrep)
     create_structure(20,[8,9,10,11,12,13,14,15],irrep)
-    figures_save, create_files,save_hist = True,True,True
+    figures_save, create_files,save_hist =False,False,False
     #spectrumV24 = spectrum_analysis.Spectrum(24,13,irrep,create_files,figures_save,save_hist)
-    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist,PathDatas[1],PathsOpss[1])
-    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist,PathDatas[2],PathsOpss[2])
-    spectrumV24 = spectrum_analysis.Spectrum(24,14,irrep,create_files,figures_save,save_hist,PathDatas[0],PathsOpss[0])
+    spectrumV20 = spectrum_analysis.Spectrum(20,14,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
+    spectrumV16 = spectrum_analysis.Spectrum(16,12,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV24 = spectrum_analysis.Spectrum(24,14,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
 
     
     spectrumV20.automatic_coloring(8)
     spectrumV16.automatic_coloring(8)
     spectrumV24.automatic_coloring(8)
+    spectrumV24.plot_levels_analysis([0,1,2,3,4,5,6],"$A_2^{--}$",0.9,1.4,0,35,path_volume_24)
+    spectrumV16.plot_levels_analysis([0,1,2,3,4,5,6],"$A_2^{--}$",0.9,1.4,0,35,path_volume_16)
+
+    spectrumV20.plot_levels_analysis([0,1,2,3,4,5,6],"$A_2^{--}$",0.9,1.4,0,35,path_volume_20)
     Ls = np.linspace(14,26)
     channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
     spectra = [spectrumV16,spectrumV20,spectrumV24]
@@ -390,8 +450,8 @@ def preliminary_analysis_A2mM_nosigma_reduced():
     #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"A2mM",Ls,"000",7,channel,0.78)
     included = [[0],[0,1],[0,1]]
     #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma_grey_out(spectra,"A2mM",Ls,"000",7,channel,0.78,included)
-    fig,ax = plt.subplots()
-    ps.plot_irrep_mass_with_get_finite_ax(spectra,"A2mM",Ls,"000",7,channel,0.78,"./Data/output_d000_A2m.spectrum",ax)
+    #fig,ax = plt.subplots()
+    #ps.plot_irrep_mass_with_get_finite_ax(spectra,"A2mM",Ls,"000",7,channel,0.78,"./Data/output_d000_A2m.spectrum",ax)
     plt.show()
     
     """    
@@ -746,7 +806,7 @@ def preliminary_analysis_T1mM():
     Ps = [np.array([0,0,0]),np.array([1,0,0]),np.array([1,1,0]),np.array([1,1,1])]
     channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
     spectra = [spectrumV16t011,spectrumV24t08,spectrumV20t09]
-    #spectrumV24t08.plot_nine_levels([0,1,2,3,4,5,6,7,8],"$T_1^{--}$",0.9,1.2,0,30)
+    #.plot_nine_levels([0,1,2,3,4,5,6,7,8],"$T_1^{--}$",0.9,1.2,0,30)
     spectrum_analysis.Spectrum.plot_irrep_mass(spectra,"T1mM",Ls,"000",25,channel,0.74)
 
 def create_irrep_ni_plus_C_parity(irrep,mom,th):
@@ -777,17 +837,25 @@ def main():
     #pa.plot_amplitudes_phase_shift(paths,labels,1,-1,ax)
     #ax.set_xlim(0.64,0.73)
     #plt.show()
-    #spectrum_analysis.bias_analysis_create_structure("T1mM-nosigma-reduced",20,[25,26,27,28,29,30],10,14)
-    #spectrum_analysis.bias_analysis_load_and_create_plots("T1mM-nosigma-improved",20,[27,28,29],10,14)
+    colors.create_table_operators_volumes("p000-T1mM",[16,20,24])
+    #spectrum_analysis.bias_analysis_create_structure("bias_analysis_A2mM","A2mM-nosigma-reduced",16,[20,21,22,23,24,25,26,27],10,14)
+    
+    #spectrum_analysis.bias_analysis_load_and_create_plots("bias_analysis_A2mM","ops.list","A2mM-nosigma-reduced",16,[20,21,22,23,24,25,26,27],10,14)
     #spectrum_analysis.Spectrum(20,10,"T1mM-nosigma-reduced",False,False,False).automatic_coloring(30)
     markers = ['o','s','^','v','<','>','D','p','*']
     #spectrum_analysis.Spectrum(20,10,"T1mM-nosigma-improved_tmax_30",False,False,False).automatic_coloring(16)
-    #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("T1mM-nosigma-reduced",["T1mM-nosigma-reduced","T1mM-nosigma-improved"],20,[27,28,29,30],10,11,30,10,30,[1,2,3,13,15,6,7,8,9],markers)
+    #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("bias_analysis_A2mM","p000-A2mM-nosigma-reduced",["A2mM-nosigma","A2mM-nosigma-reduced"],20,[20,21,22,23,24,25,26,27],10,14,30,14,30,[0,1,2,3,4,5],markers,(16,8))
+
+    #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("bias_analysis_T1mM","p000-T1mM-nosigma-reduced",["T1mM-nosigma-fewer","T1mM-nosigma-full","T1mM-nosigma-reduced"],24,[28,29,30],10,14,30,12,30,[1,2,3,5,4,6,8,9,11],markers,(16,8))
+    #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("bias_analysis_T1mM","p000-T1mM-nosigma-reduced",["T1mM-nosigma-minimal","T1mM-nosigma-full","T1mM-nosigma-reduced"],20,[28,29,30],10,14,30,10,30,[1,2,4,3,13,6,14,9,7,8,15,5],markers,(16,10.67))
+    #spectrum_analysis.plot_nine_levels_bias_analysis_ref_irrep("bias_analysis_T1mM","p000-T1mM-nosigma-reduced",["T1mM-nosigma-fewer","T1mM-nosigma-full","T1mM-nosigma-reduced"],16,[28,29,30],10,14,30,12,30,[1,2,3,4,6,5,7,9,8],markers,(16,8))
+
     #plt.show()
     #preliminary_analysis_T1mM_A2mM_A1()
-    #preliminary_analysis_T1mM_nosigma_reduced()
-    #preliminary_analysis_T1mM()
-    preliminary_analysis_A2mM_nosigma_reduced()
+    #preliminary_analysis_A2mM_full()
+    #preliminary_analysis_D4A1M_nosigma()
+    preliminary_analysis_T1mM_2()
+    #preliminary_analysis_A2mM_nosigma_reduced()
     #preliminar_analysis_T1mM_fewer_pm()
     #preliminary_analysis_D4A1M_nosigma_2()
     #preliminary_analysis_T1mM_nosigma_reduced_3()
@@ -826,32 +894,281 @@ def main():
 def create_structure(volume,t0s,irrep):
     if not os.path.exists(irrep):
         os.mkdir(irrep)
-    if not os.path.exists(f"{irrep}\\Volume_{volume}"):
-        os.mkdir(f"{irrep}\\Volume_{volume}")
+    if not os.path.exists(f"{irrep}/Volume_{volume}"):
+        os.mkdir(f"{irrep}/Volume_{volume}")
     for t0 in t0s:
-        path2 = f"{irrep}\\Volume_{volume}\\t0{t0}"
+        path2 = f"{irrep}/Volume_{volume}/t0{t0}"
         if not os.path.exists(path2):
             os.mkdir(path2)
-        path3 = f"{irrep}\\Volume_{volume}\\t0{t0}\\StateColorFiles"
+        path3 = f"{irrep}/Volume_{volume}/t0{t0}/StateColorFiles"
         if not os.path.exists(path3):
             os.mkdir(path3)
-        path4 = f"{irrep}\\Volume_{volume}\\t0{t0}\\ZValues"
+        path4 = f"{irrep}/Volume_{volume}/t0{t0}/ZValues"
         if not os.path.exists(path4):
             os.mkdir(path4)
-        path5 = f"{irrep}\\Volume_{volume}\\t0{t0}\\ZvaluesRenormalized"
+        path5 = f"{irrep}/Volume_{volume}/t0{t0}/ZvaluesRenormalized"
         if not os.path.exists(path5):
             os.mkdir(path5)
-        path6 = f"{irrep}\\Volume_{volume}\\t0{t0}\\MassValues"
+        path6 = f"{irrep}/Volume_{volume}/t0{t0}/MassValues"
         if not os.path.exists(path6):
             os.mkdir(path6) 
-        path8 = f"{irrep}\\Volume_{volume}\\t0{t0}\\CorrPlots"
+        path8 = f"{irrep}/Volume_{volume}/t0{t0}/CorrPlots"
         if not os.path.exists(path8):
             os.mkdir(path8)
-        path9 = f"{irrep}\\Volume_{volume}\\t0{t0}\\Annotations"
+        path9 = f"{irrep}/Volume_{volume}/t0{t0}/Annotations"
         if not os.path.exists(path9):
             os.mkdir(path9)
-        path10 = f"{irrep}\\Volume_{volume}\\t0{t0}\\HistogramPlots"
+        path10 = f"{irrep}/Volume_{volume}/t0{t0}/HistogramPlots"
         if not os.path.exists(path10):
             os.mkdir(path10)
+
+
+
+
+
+def preliminary_analysis_qqbar_A2mM():
+    irrep = "p000-A2mM-qqbar"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 12
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 12
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 11
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
+
+
+
+
+
+    #fig,ax = plt.subplots()
+    create_structure(16,[10,11,12,13,14],irrep)
+    create_structure(20,[10,11,12,13,14],irrep)
+    create_structure(24,[10,11,12,13,14],irrep)
+
+    figures_save, create_files,save_hist = True,True,True
+    spectrumV16 = spectrum_analysis.Spectrum(16,V16_t0,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,V20_t0,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
+    #spectrumV24 = spectrum_analysis.Spectrum(24,9,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,V24_t0,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
+
+    
+    spectrumV20.automatic_coloring(3)
+    spectrumV16.automatic_coloring(3)
+    spectrumV24.automatic_coloring(3)
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",4,channel,0.77)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included,ax)
+
+    #fig,axis = plt.subplots()
+    
+   
+    
+    """    
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.72)
+
+    """
+def preliminary_analysis_qqbar():
+    irrep = "p000-T1mM-qqbar"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 14
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 12
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 11
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
+
+
+
+
+
+    #fig,ax = plt.subplots()
+    create_structure(16,[10,11,12,13,14],irrep)
+    create_structure(20,[10,11,12,13,14],irrep)
+    create_structure(24,[10,11,12,13,14],irrep)
+
+    figures_save, create_files,save_hist = False,False,False
+    spectrumV16 = spectrum_analysis.Spectrum(16,V16_t0,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,V20_t0,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
+    #spectrumV24 = spectrum_analysis.Spectrum(24,9,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,V24_t0,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
+
+    
+    spectrumV20.automatic_coloring(10)
+    spectrumV16.automatic_coloring(10)
+    spectrumV24.automatic_coloring(10)
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",7,channel,0.77)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included,ax)
+
+    #fig,axis = plt.subplots()
+    
+   
+    
+    """    
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.72)
+
+    """
+
+
+def preliminary_analysis_A2mM_full():
+    irrep = "p000-A2mM"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 11
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 12
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 11
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
+
+
+
+
+
+    #fig,ax = plt.subplots()
+    create_structure(16,[10,11,12,13,14],irrep)
+    create_structure(20,[10,11,12,13,14],irrep)
+    create_structure(24,[10,11,12,13,14],irrep)
+
+    figures_save, create_files,save_hist = False,False,False
+    spectrumV16 = spectrum_analysis.Spectrum(16,V16_t0,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,V20_t0,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
+    #spectrumV24 = spectrum_analysis.Spectrum(24,9,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,V24_t0,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
+
+    
+    spectrumV20.automatic_coloring(10)
+    spectrumV16.automatic_coloring(8)
+    spectrumV24.automatic_coloring(10)
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
+    spectrum_analysis.Spectrum.plot_irrep_mass(spectra,"A2mM",Ls,"000",8,channel,0.77)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included,ax)
+
+    #fig,axis = plt.subplots()
+    
+   
+    
+    """    
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.72)
+
+    """
+def preliminary_analysis_T1mM_2():
+    irrep = "p000-T1mM"
+
+    path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V20_t0 = 9
+    DataPath20 = path_volume_20+f"{irrep}/t0{V20_t0}"
+    ops_path_20 =  path_volume_20+f"{irrep}/ops.list"
+
+    V24_t0 = 8
+    path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+    DataPath24 = path_volume_24 + f"{irrep}/t0{V24_t0}"
+    ops_path_24 =  path_volume_24+f"{irrep}/ops.list"
+
+    
+    path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+    V16_t0 = 11
+    DataPath16 = path_volume_16 + f"{irrep}/t0{V16_t0}"
+    ops_path_16 =  path_volume_16+f"{irrep}/ops.list"
+
+
+
+
+
+    #fig,ax = plt.subplots()
+    create_structure(16,[10,11,12,13,14],irrep)
+    create_structure(20,[10,11,12,13,14],irrep)
+    create_structure(24,[10,11,12,13,14],irrep)
+
+    figures_save, create_files,save_hist = True,True,True
+    spectrumV16 = spectrum_analysis.Spectrum(16,V16_t0,irrep,create_files,figures_save,save_hist,DataPath16,ops_path_16)
+    spectrumV20 = spectrum_analysis.Spectrum(20,V20_t0,irrep,create_files,figures_save,save_hist,DataPath20,ops_path_20)
+    #spectrumV24 = spectrum_analysis.Spectrum(24,9,irrep,create_files,figures_save,save_hist)
+    spectrumV24 = spectrum_analysis.Spectrum(24,V24_t0,irrep,create_files,figures_save,save_hist,DataPath24,ops_path_24)
+
+    
+    #spectrumV20.automatic_coloring(30)
+    #spectrumV16.automatic_coloring(30)
+    #spectrumV24.automatic_coloring(30)
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    included = [[1,2,4,6],[1,2,3,4,11,6,8],[1,2,3,13]]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",19,channel,0.74)
+    #ps.plot_irrep_mass_no_sigma_grey_out(spectra,"T1mM",Ls,"000",19,channel,0.72,included,ax)
+
+    #fig,axis = plt.subplots()
+    
+    #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
+    name = f"prin_corr_fit_t0{spectrumV16.t0}_reorder_state{0}.ax"
+    path =  f"{spectrumV16.irrep}\\Volume_{spectrumV16.volume}\\t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
+    #spectrum_analysis.plot_ax_file_in_fig(spectrumV16,path,axis,state=0)
+
+    #ps.plot_irrep_mass_with_get_finite_E_vs_L_ax(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/levels_T1mM",ax)
+    #plt.show()
+    #spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.74)
+    #fig,axis = plt.subplots()
+    #ps.plot_irrep_mass(spectra,"T1mM",Ls,"000",19,channel,0.75)
+    #
+    
+    #spectrumV20.plot_nine_levels([1,2,3,4,5,6,7,8,9],"$T_1^{--} [000]$")
+    name = f"prin_corr_fit_t0{spectrumV16.t0}_reorder_state{0}.ax"
+    path =  f"{spectrumV16.irrep}\\Volume_{spectrumV16.volume}\\t0{spectrumV16.t0}\\PrinCorrPlots\\{name}"
+    #spectrum_analysis.plot_ax_file_in_fig(spectrumV16,path,axis,state=0)
+    #plt.show()
+    #spectrum_analysis.Spectrum.plot_irrep_mass_with_get_finite(spectra,"T1mM",Ls,"000",19,channel,0.75,"./Data/output_d000_T1m.spectrum")
+
+    
+    """    
+    Ls = np.linspace(14,26)
+    channel = {'Charm':0,'Strange':0,'Isospin':0,'Charm_Isospin':1,'C_parity':-1}
+    spectra = [spectrumV16,spectrumV24,spectrumV20]
+    spectrum_analysis.Spectrum.plot_irrep_mass_no_sigma(spectra,"T1mM",Ls,"000",20,channel,0.72)
+
+    """
 main()
 #[create_structure(i,[8,9,10,11,12],"T1mM-fewer-djw-tmax30") for i in [24,16,20]]

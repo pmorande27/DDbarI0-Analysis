@@ -208,7 +208,7 @@ def plot_irrep_mass_with_get_finite_ax(spectrums,irrep_name,Ls,Ps,max_state,chan
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -457,7 +457,7 @@ def plot_irrep_mass_no_sigma_grey_out(spectrums,irrep_name,Ls,Ps,max_state,chann
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()
@@ -835,7 +835,7 @@ def plot_irrep_mass_with_get_finite_E_vs_L_ax(spectrums,irrep_name,Ls,Ps,max_sta
             colors = ['black' for l in range(max_state)]
             dcol = color_coding_file_simple()
             for j in range(max_state):
-                name = f"{irr}\\Volume_{volume}\\t0{t0}\\StateColorFiles\\state{j}.txt"
+                name = f"{irr}/Volume_{volume}/t0{t0}/StateColorFiles/state{j}.txt"
                 if os.path.exists(name):
                     with open(name) as f:
                         lines = f.readlines()

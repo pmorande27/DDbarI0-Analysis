@@ -13,7 +13,9 @@ from particle import read_particles
 import grouptheory as gt
 import matplotlib
 import particle as p
+import matplotlib.ticker as ticker
 import no_int_E_levels as no_int
+plt.rc('text', usetex=True)
 def read_ax_file(filename):
     """
     Function used to read the ax files. These files are produced by semble_vfit and contain the information for the
@@ -221,6 +223,7 @@ def plot_ax_file_in_fig(self,filename,axis,state):
     #axis.set_ylim(min_y,max_y)
 
     # Plot the fits
+    
 
     axis.plot(blue_1_fit_x, blue_1_fit_y, label='blue_1',color = not_in_color,linewidth = 0.5)
     axis.plot(blue_2_fit_x, blue_2_fit_y, label='blue_2',color = not_in_color,linewidth = 0.5)
@@ -258,6 +261,7 @@ def plot_ax_file_in_fig(self,filename,axis,state):
     hist_axis = axis.inset_axes([0.2,0.55,0.3,0.4])
     self.plot_histogram_state_axis(state,hist_axis)
     axis.text(0.6,0.7,title_def,transform=axis.transAxes,fontsize=8)
+    
     #plt.title(title_def)
 
     # Show or save the plot
@@ -371,7 +375,7 @@ class Spectrum(object):
         if self.create_files:
             path = f"{self.pathData}/MassJackFiles"
         else:
-            path =  f"{self.pathData}/Massvalues"
+            path =  f"{self.path_home}/MassValues"
         files = os.listdir(path)
         states = []
         for file in files:
@@ -438,7 +442,7 @@ class Spectrum(object):
         for name in names:
 
             path = f"{self.pathData}/ZJackFiles/{name}"
-            path2 = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Zvalues/{name}"
+            path2 = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZValues/{name}"
             with open(path2, "w") as f:
                 f.write(f"{abs(calc(path)[0])} {calc(path)[1]}")
 
@@ -454,7 +458,7 @@ class Spectrum(object):
         values = np.zeros(len(names))
         errors = np.zeros(len(names))
         for name in names:
-            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/Zvalues/{name}"
+            path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/ZValues/{name}"
             a = np.loadtxt(path)
             val,err = a[0],a[1]
             values[names.index(name)] = val
@@ -492,14 +496,20 @@ class Spectrum(object):
         dict_operators,color_code_dict = color_coding_file(file)
         colors = [color_code_dict[dict_operators[name]] for name in x]
         labels = []
-        for op in x:
+        fig,ax = plt.subplots()
+
+        for i,op in enumerate(x):
 
             if dict_operators[op] not in labels:
+                label = dict_operators[op]
                 labels.append(dict_operators[op])
+          
+                ax.bar(x[i],values[i],yerr=errors[i],color=colors[i],label=dict_operators[op])
             else:
-                labels.append('_'+dict_operators[op])
-        fig,ax = plt.subplots()
-        ax.bar(x,values,yerr=errors,color=colors,label=labels)
+                ax.bar(x[i],values[i],yerr=errors[i],color=colors[i])
+
+
+
         name2 =  f"mass_t0_{self.t0}_reorder_state{state}.jack"
         v = np.loadtxt(f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/MassValues/{name2}")
         value,error = round(v[0],3),round(v[1],3)
@@ -515,6 +525,7 @@ class Spectrum(object):
         else:
             name = f"histogram_state{state}.pdf"
             path = f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/HistogramPlots/{name}"
+            #plt.show()
             plt.savefig(path)
             plt.close()
     def plot_histogram_state_axis(self,state,axis):
@@ -1010,7 +1021,7 @@ class Spectrum(object):
         plt.ylabel('$a_tE_{cm}$',rotation = 0)
         irrep_name = irr 
         name = f"{irrep_name}/Spectrum_{irrep_name}.pdf"
-        plt.legend()
+        plt.legend(ncol=2,loc="lower left")
         plt.savefig(name)
         plt.show()
     def plot_irrep_mass_no_sigma_grey_out(spectrums,irrep_name,Ls,Ps,max_state,channel,th,included):
@@ -1250,6 +1261,84 @@ class Spectrum(object):
             plot_ax_file_in_fig(self,path,ax,state)
 
             #ax.set_title(f"State {state}")
+        plt.show()
+    def plot_levels_analysis(self,included,irrep,ymin,ymax,xmin,xmax,Path_files):
+        l = len(included)
+        j = l//3
+        height = j+1
+        fig,axes = plt.subplots(j+1,3,figsize=(16,8),sharex=True,sharey=True)
+        
+        plt.subplots_adjust(wspace=0.1, hspace=0.1) 
+        plt.ylim(ymin,ymax)
+        plt.xlim(xmin,xmax)
+        
+        x_and_y_axis = axes[0,0]
+        title = axes[0,1]
+        legend = axes[0,2]
+        middle_x = (xmax+xmin)/2
+        middle_y = (ymax+ymin)/2
+        unit_x = ((xmax-xmin))
+        unit_y =((ymax-ymin))
+        print(unit_x,unit_y)
+
+        #x_and_y_axis.arrow(xmin,ymin,unit_x,0,head_width=0.05, head_length=0.2, fc='k', ec='k')
+
+        #x_and_y_axis.arrow(middle_x,middle_y,0,unit_y,head_width=0.2, head_length=0.04, fc='k', ec='k')
+        #x_and_y_axis.set_xlim(-1,1.5)
+        #x_and_y_axis.set_ylim(-1,1.5)
+        x_and_y_axis.set_xlabel('$t$',fontsize=12)
+        
+        x_and_y_axis.set_ylabel('$\\lambda_n \cdot e^{m_n t}$',fontsize=12)
+        #x_and_y_axis.axis('off')
+        x_and_y_axis.spines['right'].set_visible(False)
+        x_and_y_axis.spines['top'].set_visible(False)
+        x_and_y_axis.tick_params(bottom=False,left=False,labelleft=False,labelbottom=False)
+        x_and_y_axis.annotate("",xy=(1.02,0),xytext=(0,0),arrowprops=dict(arrowstyle="->",color="black"),xycoords="axes fraction")
+        x_and_y_axis.annotate("",xy=(0,1.02),xytext=(0,-0.01),arrowprops=dict(arrowstyle="->",color="black"),xycoords="axes fraction")
+
+
+        #title.set_xlim(0,1)
+        #title.set_ylim(0,1)
+        title.text(10,1.1,f'{irrep} $L/a_s$ = {self.volume}',fontsize=12)
+        
+        title.axis('off')
+        file =self.pathOps
+      
+     
+        x = [f"op{i}" for i in range(self.operators)]
+        dict_operators,color_code_dict = color_coding_file(file)
+        colors = [color_code_dict[dict_operators[name]] for name in x]
+        labels = []
+        for op in x:
+
+            if dict_operators[op] not in labels:
+                labels.append(dict_operators[op])
+            else:
+                labels.append('_'+dict_operators[op])
+        legend_patches = [mpatches.Patch(color=colors[::-1][i],label=labels[::-1][i]) for i in range(len(labels))]
+        legend.legend(handles=legend_patches,loc='center',fontsize=12,  handleheight=1, handlelength=5,frameon=False,ncol = 2)
+        legend.axis('off')
+
+        #x_and_y_axis.aspect = 'equal'
+
+        total = (height)*3-3
+        for i in range(total):
+           
+            state = included[i]
+            if Path_files =="":
+                name = f"prin_corr_fit_t0{self.t0}_reorder_state{state}.ax"
+                path =  f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/PrinCorrPlots/{name}"
+            else:
+                name = f"prin_corr_fit_t0{self.t0}_reorder_state{state}.ax"
+                path =  f"{Path_files}{self.irrep}/t0{self.t0}/PrinCorrPlots/{name}"
+            
+            ax = axes[(i+3)//height,i%3]
+            plot_ax_file_in_fig(self,path,ax,state)
+
+            #ax.set_title(f"State {state}")
+        
+
+        fig.savefig(f"{self.irrep}/Volume_{self.volume}/t0{self.t0}/{self.irrep}-{self.volume}-PrincipalCorrelatorPlot.pdf")
         plt.show()
             
 
@@ -1525,6 +1614,7 @@ class Spectrum(object):
         #plt.fill_between(xs,np.array(ys)-np.array(errs),np.array(ys)+np.array(errs),color = 'gold',alpha = 0.3)
 
         ax.spines['right'].set_visible(False)
+
         ax.spines['top'].set_visible(False)
         plt.xlabel('Volume')
         plt.ylabel('$a_tE_{cm}$',rotation = 0)
@@ -2214,22 +2304,35 @@ def plot_irrep_mass_in_flight(irrep_name,Ls,Ps,channel,th):
         path = f"ni irreps/NI Spectrum_{irrep_name}_[{Ps}].pdf"
         plt.savefig(path)
         plt.show()
-def bias_analysis_create_structure(irrep_name,V,tmaxs,t0min,t0max):
+def bias_analysis_create_structure(folder,irrep_name,V,tmaxs,t0min,t0max):
     t0s = range(t0min,t0max+1)
     for tmax in tmaxs:
-        irrep = irrep_name + f"_tmax_{tmax}"
+        irrep =f"{folder}/"+ irrep_name + f"_tmax_{tmax}"
+        if not os.path.exists(folder):
+            os.mkdir(folder)
 
         create_structure(V,t0s,irrep)
-def bias_analysis_load_and_create_plots(irrep_name,V,tmaxs,t0min,t0max):
-    bias_analysis_create_structure(irrep_name,V,tmaxs,t0min,t0max)
+def bias_analysis_load_and_create_plots(folder,ops_file_name,irrep_name,V,tmaxs,t0min,t0max):
+    bias_analysis_create_structure(folder,irrep_name,V,tmaxs,t0min,t0max)
     for tmax in tmaxs:
-        irrep = irrep_name + f"_tmax_{tmax}"
+        irrep =f"{folder}/"+ irrep_name + f"_tmax_{tmax}"
         for t0 in range(t0min,t0max+1):
-
+            path_volume_20 = "/store/CETQCD3/cet34/HadSpec/szscl21_20_256_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+            path_volume_24 = "/store/CETQCD3/cet34/HadSpec/szscl21_24_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265/redstar/DDbar_I0/fits_pm/"
+            path_volume_16 = "/store/CETQCD3/cet34/HadSpec/szscl21_16_128_b1p50_t_x4p300_um0p0840_sm0p0743_n1p265_per/redstar/DDbar_I0/fits_pm/"
+            if V == 20:
+                path_volume = path_volume_20
+            if V == 16:
+                path_volume = path_volume_16
+            if V == 24:
+                path_volume=path_volume_24
+            path_Data = path_volume+f"{irrep}/t0{t0}"
+            path_ops = path_volume+f"{folder}/{ops_file_name}"
+    
 
             
             path = f"{irrep}/Volume_{V}/t0{t0}/MassValues"
-            spectrum = Spectrum(V,t0,irrep,create_files=False,saveAllPlots=False,saveHistPlots=False)
+            spectrum = Spectrum(V,t0,irrep,create_files=True,saveAllPlots=True,saveHistPlots=True,pathData=path_Data,pathOps=path_ops)
             mass,err = spectrum.get_masses()
             len_mass = len(mass)
             print(f"Automatic coloring for {irrep} t0 {t0} with {len_mass} states")
@@ -2409,6 +2512,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
 
     ref_spectrum = Spectrum(V,t0_ref,irrep_ref,create_files=False,saveAllPlots=False,saveHistPlots=False)
     #ref_spectrum.automatic_coloring(max_state)
+    max_state = ref_spectrum.states
     names_ref = [i for i in range(max_state)]
     skips_ref = ref_spectrum.skips
     tags = list(dict_spectrums.keys())
@@ -2417,7 +2521,7 @@ def bias_analysis_level_matching_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0
             names_ref.remove(skips)
     masses_ref,err_ref= ref_spectrum.get_masses()
     dict_closest_levels = {}
-    for state in range(max_state):
+    for state in range(max_state-1):
         mass = masses_ref[state]
         err = err_ref[state]
         name = names_ref[state]
@@ -2511,7 +2615,7 @@ def plot_level_bias_analysis_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0max,
     dcol = color_coding_file_simple()
     t0s = range(t0min,t0max+1)
 
-    padding = [0.1*l for l in range(len(t0s))]
+    padding = [0.1*l for l in range(len(tmaxs))]
 
     names = [i for i in range(max_state)]
     skips = Spectrum_ref.skips
@@ -2533,9 +2637,9 @@ def plot_level_bias_analysis_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0max,
         colors = dcol[color]
         tmax = int(tag.split("_")[-3])
         #print(tmax)
-        index_t0s = np.abs(np.array(t0s) - t0).argmin()
+        index_tmax = np.abs(np.array(tmaxs) - tmax).argmin()
 
-        x = tmax + padding[index_t0s]
+        x = t0 + padding[index_tmax]
         ax.errorbar(x,mass,yerr=err,label=name,color = colors,marker = marker,markersize = 3)
         states.append(mass)
         err_states.append(err)
@@ -2551,38 +2655,54 @@ def plot_level_bias_analysis_ref_irrep(irrep_ref,irrep_name,V,tmaxs,t0min,t0max,
     else:
         color_ref = 0
     index_t0 = np.abs(np.array(t0s) - t0_ref).argmin()
-    xs = np.linspace(min(tmaxs),max(tmaxs)+1,100)
+    xs = np.linspace(t0min,t0max+1,100)
     ys =np.array([mass_state_of_interest for l in xs])
     yerrs =np.array( [err_state_of_interest for l in xs])
     ax.plot(xs,ys,color = dcol[color_ref],linestyle = '--',linewidth = 0.5)
     ax.fill_between(xs,ys-yerrs,ys+yerrs,color = dcol[color_ref],alpha = 0.15)
     #ax.errorbar(tmax_ref+padding[index_t0],mass_state_of_interest,yerr=err_state_of_interest,fmt='o',label="State of interest",color = dcol[color_ref])
+    ax.set_xlim(t0min-1,t0max+1)
     ax.set_ylim(round(mass_state_of_interest-3*err_state_of_interest,4),round(mass_state_of_interest+3*err_state_of_interest,4))
     ticks = [round(s,4) for s in [mass_state_of_interest+2*err_state_of_interest,mass_state_of_interest+err_state_of_interest,mass_state_of_interest,mass_state_of_interest-err_state_of_interest,mass_state_of_interest-2*err_state_of_interest]]
     ax.set_yticks(ticks)
+    major_ticks = np.array(range(t0min,t0max+1)) 
+    minor_ticks = np.array([[t0 + pad for pad in padding] for t0 in major_ticks]).flatten()
+    
+    
+    ax.xaxis.set_minor_locator(ticker.FixedLocator(minor_ticks))
+    
     return states,err_states
     #ax.text(tmax_ref+padding[index_t0],mass_state_of_interest,str(level_of_interest)+ f" state ref",fontsize = 8)
-def plot_nine_levels_bias_analysis_ref_irrep(ref_irrep,irrep_names,V,tmaxs,t0min,t0max,ncolor,t0_ref,max_state,levels_of_interest,markers):
-    fig, ax = plt.subplots(3,3,sharex=True,figsize=(15,15))
+def plot_nine_levels_bias_analysis_ref_irrep(folder,ref_irrep,irrep_names,V,tmaxs,t0min,t0max,ncolor,t0_ref,max_state,levels_of_interest,markers,figsize=(15,15)):
+    width = len(levels_of_interest)//3
+    fig, ax = plt.subplots(width,3,sharex=True,figsize=figsize)
+    
     dcit_closest_levelss = []
     for l in range(len(irrep_names)):
-        irrep_name = irrep_names[l]
+        irrep_name =f"{folder}/"+ irrep_names[l]
         dcit_closest_levelss.append(bias_analysis_level_matching_ref_irrep(ref_irrep,irrep_name,V,tmaxs,t0min,t0max,ncolor,t0_ref,max_state))
     #plt.subplots_adjust(wspace=0.2, hspace=0.2) 
 
-    for i in range(3):
+    for i in range(width):
         for j in range(3):
             for k in range(len(irrep_names)):
-                irrep_name = irrep_names[k]
+                irrep_name ="{folder}/"+ irrep_names[k]
                 dcit_closest_levels = dcit_closest_levelss[k]
                 marker = markers[k]
                 
                 plot_level_bias_analysis_ref_irrep(ref_irrep,irrep_name,V,tmaxs,t0min,t0max,ncolor,t0_ref,max_state,levels_of_interest[3*i+j],ax[i,j],dict_closest_levels=dcit_closest_levels,marker = marker)
             ax[i,j].spines['right'].set_visible(False)
             ax[i,j].spines['top'].set_visible(False)
+            if i ==width-1:
+                ax[i,j].set_xlabel('$t_0$')
+            if j ==0:
+                ax[i,j].set_ylabel("$a_tE_{cm}$")
+            ax[i,j].set_title(f"State {levels_of_interest[3*i+j]}")
             
-
+   
+    plt.savefig(f"{folder}/bias_analysis_{ref_irrep}_{V}.pdf")
     plt.show()
+
         ## Find same state in other spectrums
 
 

@@ -367,7 +367,7 @@ def color_coding_file_simple():
     return color_code_dict
 
 def save_color_code_state(color_code,state,spectrum):
-    name_file = f"{spectrum.irrep}\\Volume_{spectrum.volume}\\t0{spectrum.t0}\\StateColorFiles\\state{state}.txt"
+    name_file = f"{spectrum.irrep}/Volume_{spectrum.volume}/t0{spectrum.t0}/StateColorFiles/state{state}.txt"
     with open(name_file, "w") as f:
         f.write(str(color_code))
 
@@ -531,6 +531,53 @@ def count_operators(file_name):
         else:
             empty_dict[ops_dic[key]] += 1
     return empty_dict
+def create_table_operators_volumes( irrep,volumes):
+    table = "\\begin{table}[H]\n"
+    print(table)
+    ys = "{"+"".join(["Y" for V in volumes]) + "}"
+    string =  "\\begin{table}[H]\\begin{tabularx}{\\textwidth}"+ys
+    for i,volume in enumerate(volumes):
+        L = "{L}"
+        a_s = "{a_s}"
+        if i != len(volumes)-1: 
+            string += f"$\\frac {L} {a_s} = {volume} $& "
+        else:
+            string += f"$\\frac {L} {a_s} = {volume} $ \\\\ \midrule"
+    print(string)
+    dics = []
+    keys_length = []
+    keys = []
+    for volume in volumes:
+        file_name = irrep + '/Volume_'+str(volume) + '/ops.txt'
+        ops_dic = count_operators(file_name)
+        dics += [ops_dic.copy()]
+        keys_length+= [len(ops_dic.keys())]
+        keys += [list(ops_dic.keys())]
+    max_l = max(keys_length)
+    for j in range(max_l):
+        string = ""
+        for i,dic in enumerate(dics):
+            try:
+                key = keys[i][j]
+            
+            
+                count = dic[key]
+                if i != len(dics)-1:    
+                    string += key  + " x " + str(count) +'& '
+                else: 
+                    string += key  + " x " + str(count) +'\\\\'
+            except:
+                if i != len(dics)-1:    
+                    string +='& '
+                else: 
+                    string += '\\\\'
+            
+        print(string)
+
+
+    print( '\\bottomrule\end{tabularx}')
+    print('\caption{Operators for Irrep:'+irrep +'} \end{table}')
+    print('\n')
 def create_table_operators( irrep,volume):
     file_name = irrep + '/Volume_'+str(volume) + '/ops.txt'
     ops_dic = count_operators(file_name)
